@@ -615,6 +615,14 @@ module RSA: sig
         components defined: public, private, and private for use with
         the CRT. *)
 
+  val new_QR_generator: ?rng: Random.rng -> key -> string
+    (** Choose a random generator for the group QR_n of
+	quadratic residues modulo n, where n is the RSA modulus in
+	the non-optional [key] argument.
+	The optional [rng] argument specifies a random
+        number generator to use for choosing the generator; it defaults to
+        {!Cryptokit.Random.secure_rng}. *)
+
   val encrypt: key -> string -> string
     (** [encrypt k msg] encrypts the string [msg] with the public part
         of key [k] (components [n] and [e]).

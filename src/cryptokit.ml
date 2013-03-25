@@ -1785,6 +1785,30 @@ let new_key ?rng ?e ?(safe = false) numbits =
   wipe_nat dp; wipe_nat dq; wipe_nat qinv;
   res
 
+let wrongorder a p =
+  let m = Bn.mod_ a p in
+  let meq n = (Bn.compare m n = 0) in
+  let meq' tmp = let r = meq tmp in wipe_nat tmp; r in
+  let r = meq Bn.zero || meq Bn.one || meq' (Bn.sub p Bn.one) in
+  wipe_nat m; r
+
+let rec random_QR_generator ?rng n p q numbits =
+  let a = random_nat ?rng numbits in
+  if wrongorder a p || wrongorder a q
+  then random_QR_generator ?rng n p q numbits
+  else
+    let r = Bn.mod_power a (nat_of_int 2) n in
+    wipe_nat a; r
+
+let new_QR_generator ?rng key =
+  let numbits = key.size in
+  let n = nat_of_bytes key.n in
+  let p = nat_of_bytes key.p in
+  let q = nat_of_bytes key.q in
+  let g = random_QR_generator ?rng n p q numbits in
+  let r = bytes_of_nat ~numbits:numbits g in
+  wipe_nat p; wipe_nat q; wipe_nat g; r
+
 end
 
 (* Diffie-Hellman key agreement *)
