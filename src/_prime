@@ -1,0 +1,14 @@
+moduli_small_primes (n:nat) : int list
+	moduli_small_primes n is a list of remainders
+		[n mod p₁; ⋯; n mod p_v]
+	relative to the small primes p₁,…,p_v.
+
+is_divisible_by_small_prime (delta:int) (remainders:int list) : bool
+	s_divisible_by_small_prime delta (moduli_small_primes n)
+	is true if p_i | n+delta for some small prime p_i.
+	Ie, the code decides if n+δ ≡ 0 mod p
+	given that n ≡ m mod p
+	by computing m+δ ≡ 0 mod p.
+
+is_pseudoprime : nat -> bool
+	primality test (I'm not sure which one)

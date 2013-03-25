@@ -597,7 +597,7 @@ module RSA: sig
   val wipe_key: key -> unit
     (** Erase all components of a RSA key. *)
 
-  val new_key: ?rng: Random.rng -> ?e: int -> int -> key
+  val new_key: ?rng: Random.rng -> ?e: int -> ?safe: bool -> int -> key
     (** Generate a new, random RSA key.  The non-optional [int]
         argument is the desired size for the modulus, in bits
         (e.g. 1024).  The optional [rng] argument specifies a random
@@ -607,6 +607,10 @@ module RSA: sig
         is chosen randomly.  Small values of [e] such as [e = 3]
         or [e = 65537] significantly speeds up encryption and
         signature checking compared with a random [e].
+        The optional [safe] argument specifies whether to
+        use safe primes p and q in constructing the modulus.
+        A safe prime has the form 2p+1 where p is prime.
+        If not specified, [safe] defaults to false.
         The result of [new_key] is a complete RSA key with all
         components defined: public, private, and private for use with
         the CRT. *)

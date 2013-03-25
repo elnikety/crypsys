@@ -1669,11 +1669,11 @@ let moduli_small_primes n =
   wipe_nat dend; wipe_nat dsor; wipe_nat quot; wipe_nat rem;
   res
 
-let is_divisible_by_small_prime delta remainders =
+let is_divisible_by_small_prime ?(safe = false) delta remainders =
   List.exists2
-    (fun p m -> (m + delta) mod p = 0)
+    (fun p m -> let r = (m + delta) mod p in r = 0 || (safe && r = (p - 1) / 2))
     small_primes remainders
-
+ 
 let pseudoprime_test_values = [2;3;5;7;11;13;17;19]
 
 let is_pseudoprime p =
@@ -1689,7 +1689,7 @@ let is_pseudoprime p =
   wipe_nat p1;
   res
 
-let rec random_prime ?rng numbits =
+let rec random_prime ?rng ?safe numbits =
   (* Generate random odd number *)
   let n = random_nat ?rng ~lowbits:1 numbits in
   (* Precompute moduli with small primes *)
@@ -1697,8 +1697,8 @@ let rec random_prime ?rng numbits =
   (* Search from n *)
   let rec find_prime delta =
     if delta < 0 then (* arithmetic overflow in incrementing delta *)
-      random_prime ?rng numbits
-    else if is_divisible_by_small_prime delta moduli then
+      random_prime ?rng ?safe numbits
+    else if is_divisible_by_small_prime ?safe delta moduli then
       find_prime (delta + 2)
     else begin    
       let n' = Bn.add n (nat_of_int delta) in
@@ -1706,21 +1706,21 @@ let rec random_prime ?rng numbits =
         if Bn.num_bits n' = numbits then begin
           wipe_nat n; n'
         end else begin (* overflow in adding delta to n *)
-          wipe_nat n; wipe_nat n'; random_prime ?rng numbits
+          wipe_nat n; wipe_nat n'; random_prime ?rng ?safe numbits
         end
       else
         find_prime (delta + 2)
     end in
   find_prime 0
 
-let new_key ?rng ?e numbits =
+let new_key ?rng ?e ?safe numbits =
   if numbits < 32 || numbits land 1 > 0 then raise(Error Wrong_key_size);
   let numbits2 = numbits / 2 in
   (* Generate primes p, q with numbits / 2 digits.
      If fixed exponent e, make sure gcd(p-1,e) = 1 and
      gcd(q-1,e) = 1. *)
   let rec gen_factor nbits =
-    let n = random_prime ?rng nbits in
+    let n = random_prime ?rng ?safe nbits in
     match e with
       None -> n
     | Some e ->
