@@ -1691,7 +1691,7 @@ let is_pseudoprime p =
 
 let is_pseudoprime safe p =
   is_pseudoprime p &&
-  (safe ||
+  (not safe ||
   let q = Bn.sub p Bn.one in
   let ln = Bn.num_digits q in
   let tmp = create_nat 1 in
