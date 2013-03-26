@@ -384,7 +384,12 @@ module Bn : sig
   val is_pseudoprime: nat -> bool
     (** Some kind of probabilistic primality test. *)
   
-  val random_prime: ?rng: Random.rng -> int -> nat
+  type primekind
+  val any : primekind
+  val safe : primekind
+    (** A safe prime [p] has the form [2p' +1] for [p'] prime. *)
+  
+  val random_prime: ?rng: Random.rng -> ?kind:primekind -> int -> nat
     (** [random_prime n] picks a random, n-bit odd prime. *)
 end
 
