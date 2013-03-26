@@ -615,14 +615,6 @@ module RSA: sig
         components defined: public, private, and private for use with
         the CRT. *)
 
-  val new_QR_generator: ?rng: Random.rng -> key -> string
-    (** Choose a random generator for the group QR_n of
-	quadratic residues modulo n, where n is the RSA modulus in
-	the non-optional [key] argument.
-	The optional [rng] argument specifies a random
-        number generator to use for choosing the generator; it defaults to
-        {!Cryptokit.Random.secure_rng}. *)
-
   val encrypt: key -> string -> string
     (** [encrypt k msg] encrypts the string [msg] with the public part
         of key [k] (components [n] and [e]).
@@ -664,6 +656,34 @@ module RSA: sig
         thus extracting the plaintext that was signed by the sender.
         The size of [msg] is limited as described for
         {!Cryptokit.RSA.encrypt}. *)
+end
+
+(** The [DAA] module implements the direct anonymous attestation protocol. *)
+module DAA : sig
+  module Issuer: sig
+    type key =
+      { size: int;	(** Size of the modulus [n], in bits (nee ℓ_n) *)
+        n: string;	(** Special RSA modulus [n = (2p'+1)(2q'+1)] *)
+        g': string;	(** Generator [<g'> = QR_n] *)
+        g: string;	(** [g ∈ <g'>] *)
+        h: string;	(** [h ∈ <g'>] *)
+        s: string;	(** [s ∈ <h>] *)
+        z: string;	(** [z ∈ <h>] *)
+        r0: string;	(** [r0 ∈ <S>] *)
+        r1: string;	(** [r1 ∈ <S>] *)
+        p'q': string	(** Secret *)
+      }
+      (** The type of issuer keys.  All components except [p'q'] are
+          public. *)
+  
+    val new_key: ?rng: Random.rng -> int -> key
+      (** Generate a new, random issuer key.  The non-optional [int]
+          argument is the desired size for the underlying special RSA modulus, in bits
+          (e.g. 1024).  The optional [rng] argument specifies a random
+          number generator to use for generating the key; it defaults to
+          {!Cryptokit.Random.secure_rng}. *)
+  end
+
 end
 
 (** The [DH] module implements Diffie-Hellman key agreement.

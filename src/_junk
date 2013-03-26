@@ -1,0 +1,26 @@
+      g:string;	(** [g ∈ <g'>] *)
+      h:string;	(** [h ∈ <g'>] *)
+      S:string;	(** [S ∈ <h>] *)
+      Z:string;	(** [Z ∈ <h>] *)
+      R0:string;	(** [R0 ∈ <S>] *)
+      R1:string;	(** [R1 ∈ <S>] *)
+      (* ⋯ and a group of prime order ⋯ *)
+      (* gamma:string; Gamma:string; rho:string; *)
+
+  val new_QR_generator: ?rng: Random.rng -> key -> string
+    (** Choose a random generator for the group QR_n of
+	quadratic residues modulo n, where n is the RSA modulus in
+	the non-optional [key] argument.
+	The optional [rng] argument specifies a random
+        number generator to use for choosing the generator; it defaults to
+        {!Cryptokit.Random.secure_rng}. *)
+
+let new_QR_generator ?rng key =
+  let numbits = key.size in
+  let n = nat_of_bytes key.n in
+  let p = nat_of_bytes key.p in
+  let q = nat_of_bytes key.q in
+  let g = random_QR_generator ?rng n p q numbits in
+  let r = bytes_of_nat ~numbits:numbits g in
+  wipe_nat p; wipe_nat q; wipe_nat g; r
+

@@ -1689,15 +1689,19 @@ let is_pseudoprime p =
   wipe_nat p1;
   res
 
-let is_pseudoprime safe p =
-  is_pseudoprime p &&
-  (not safe ||
+let sgprime p =
   let q = Bn.sub p Bn.one in
   let ln = Bn.num_digits q in
   let tmp = create_nat 1 in
   let () = shift_right_nat q 0 ln tmp 0 1 in
-  let r = is_pseudoprime q in
-  wipe_nat q; wipe_nat tmp; r)
+  wipe_nat tmp; q
+
+let is_pseudoprime safe p =
+  is_pseudoprime p &&
+  (not safe ||
+  let p' = sgprime p in
+  let r = is_pseudoprime p' in
+  wipe_nat p'; r)
 
 let rec random_prime ?rng safe numbits =
   (* Generate random odd number *)
@@ -1785,6 +1789,22 @@ let new_key ?rng ?e ?(safe = false) numbits =
   wipe_nat dp; wipe_nat dq; wipe_nat qinv;
   res
 
+end
+
+module DAA = struct
+
+module Issuer = struct
+type key =
+  { size: int;
+    n: string;
+    g': string;
+    g: string; h: string;
+    s: string; z: string;
+    r0: string; r1: string;
+    p'q': string }
+
+(* PDS: We might be able to use the CRT for some of these mod_powers. *)
+
 let wrongorder a p =
   let m = Bn.mod_ a p in
   let meq n = (Bn.compare m n = 0) in
@@ -1792,22 +1812,59 @@ let wrongorder a p =
   let r = meq Bn.zero || meq Bn.one || meq' (Bn.sub p Bn.one) in
   wipe_nat m; r
 
-let rec random_QR_generator ?rng n p q numbits =
-  let a = random_nat ?rng numbits in
+let rec find_generator ?rng n p q numbits =
+  let a = RSA.random_nat ?rng numbits in
   if wrongorder a p || wrongorder a q
-  then random_QR_generator ?rng n p q numbits
+  then find_generator ?rng n p q numbits
   else
     let r = Bn.mod_power a (nat_of_int 2) n in
     wipe_nat a; r
 
-let new_QR_generator ?rng key =
-  let numbits = key.size in
-  let n = nat_of_bytes key.n in
-  let p = nat_of_bytes key.p in
-  let q = nat_of_bytes key.q in
-  let g = random_QR_generator ?rng n p q numbits in
-  let r = bytes_of_nat ~numbits:numbits g in
-  wipe_nat p; wipe_nat q; wipe_nat g; r
+let pick_subgroup_members ?rng limit n =
+  let ln = Bn.num_bits limit in
+  let rec pick_power () =	(* {1,…,limit} *)
+    let i = RSA.random_nat ?rng ln in
+    if Bn.compare i limit >= 0 then pick_power()
+    else Bn.add i Bn.one in
+  let pick g = Bn.mod_power g (pick_power()) n in
+  fun g ->
+  let a = pick g in
+  let b = pick g in
+  (a,b)
+
+let new_key ?rng numbits =
+  let key = RSA.new_key ?rng ~safe:true numbits in
+  let n = nat_of_bytes key.RSA.n in
+  let p = nat_of_bytes key.RSA.p in
+  let q = nat_of_bytes key.RSA.q in
+  let g' = find_generator ?rng n p q numbits in
+  let p' = RSA.sgprime p in
+  let q' = RSA.sgprime q in
+  let p'q' = Bn.mult p' q' in
+  let pick = pick_subgroup_members ?rng p'q' n in
+  let (g,h) = pick g' in
+  let (s,z) = pick h in
+  let (r0,r1) = pick s in
+  let tostring x = bytes_of_nat ~numbits:numbits x in
+  let tostring x = let r = tostring x in wipe_nat x; r in
+  let res =
+    { size = numbits;
+      n = tostring n;
+      g' = tostring g';
+      g = tostring g;
+      h = tostring h;
+      s = tostring s;
+      z = tostring z;
+      r0 = tostring r0;
+      r1 = tostring r1;
+      (* PDS: numbits-2? *)
+      p'q' = tostring p'q' } in
+  RSA.wipe_key key;
+  wipe_nat p; wipe_nat q;
+  wipe_nat p'; wipe_nat q';
+  res
+
+end
 
 end
 

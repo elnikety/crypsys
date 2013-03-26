@@ -2,6 +2,8 @@ BUILD=ocaml setup.ml
 
 all:V: setup.data
 	$BUILD -build
+
+doc:V: setup.data
 	$BUILD -doc
 
 setup.data:
