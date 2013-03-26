@@ -1663,7 +1663,7 @@ let safe : primekind =
 let rec random_prime ?rng ?(kind = any) numbits =
   (* Generate random odd number *)
   let n = random_nat ?rng ~lowbits:1 numbits in
-  (* Precomputes a table of moduli. *)
+  (* Precompute moduli with small primes *)
   let obviously_bad = kind.small_divisor n in
   let probably_good = kind.pseudoprime in
   (* Search from n *)
