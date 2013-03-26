@@ -1756,14 +1756,18 @@ let decrypt_CRT key msg =
 
 let sign_CRT = decrypt_CRT
 
-let new_key ?rng ?e numbits =
+type kind = Bn.primekind
+let any : kind = Bn.any
+let special : kind = Bn.safe
+
+let new_key ?rng ?e ?(kind = special) numbits =
   if numbits < 32 || numbits land 1 > 0 then raise(Error Wrong_key_size);
   let numbits2 = numbits / 2 in
   (* Generate primes p, q with numbits / 2 digits.
      If fixed exponent e, make sure gcd(p-1,e) = 1 and
      gcd(q-1,e) = 1. *)
   let rec gen_factor nbits =
-    let n = Bn.random_prime ?rng nbits in
+    let n = Bn.random_prime ?rng ~kind nbits in
     match e with
       None -> n
     | Some e ->
