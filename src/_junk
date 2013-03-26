@@ -1,3 +1,233 @@
+let is_divisible_by_small_prime safe delta remainders =
+  List.exists2
+    (fun p m -> let r = (m + delta) mod p in r = 0 || (safe && r = (p - 1) / 2))
+    small_primes remainders
+ 
+let sgprime p =
+  let q = Bn.sub p Bn.one in
+  let ln = Bn.num_digits q in
+  let tmp = create_nat 1 in
+  let () = shift_right_nat q 0 ln tmp 0 1 in
+  wipe_nat tmp; q
+
+let is_pseudoprime safe p =
+  is_pseudoprime p &&
+  (not safe ||
+  let p' = sgprime p in
+  let r = is_pseudoprime p' in
+  wipe_nat p'; r)
+
+let rec random_prime ?rng safe numbits =
+  (* Generate random odd number *)
+  let n = random_nat ?rng ~lowbits:1 numbits in
+  (* Precompute moduli with small primes *)
+  let moduli = moduli_small_primes n in
+  (* Search from n *)
+  let rec find_prime delta =
+    if delta < 0 then (* arithmetic overflow in incrementing delta *)
+      random_prime ?rng safe numbits
+    else if is_divisible_by_small_prime safe delta moduli then
+      find_prime (delta + 2)
+    else begin    
+      let n' = Bn.add n (nat_of_int delta) in
+      if is_pseudoprime safe n' then
+        if Bn.num_bits n' = numbits then begin
+          wipe_nat n; n'
+        end else begin (* overflow in adding delta to n *)
+          wipe_nat n; wipe_nat n'; random_prime ?rng safe numbits
+        end
+      else
+        find_prime (delta + 2)
+    end in
+  find_prime 0
+
+  val new_key: ?rng: Random.rng -> ?e: int -> ?safe: bool -> int -> key
+    (** Generate a new, random RSA key.  The non-optional [int]
+        argument is the desired size for the modulus, in bits
+        (e.g. 1024).  The optional [rng] argument specifies a random
+        number generator to use for generating the key; it defaults to
+        {!Cryptokit.Random.secure_rng}.  The optional [e] argument
+        specifies the public exponent desired.  If not specified, [e]
+        is chosen randomly.  Small values of [e] such as [e = 3]
+        or [e = 65537] significantly speeds up encryption and
+        signature checking compared with a random [e].
+        The optional [safe] argument specifies whether to
+        use safe primes p and q in constructing the modulus.
+        A safe prime has the form 2p+1 where p is prime.
+        If not specified, [safe] defaults to false.
+        The result of [new_key] is a complete RSA key with all
+        components defined: public, private, and private for use with
+        the CRT. *)
+
+let new_key ?rng ?e ?(safe = false) numbits =
+  if numbits < 32 || numbits land 1 > 0 then raise(Error Wrong_key_size);
+  let numbits2 = numbits / 2 in
+  (* Generate primes p, q with numbits / 2 digits.
+     If fixed exponent e, make sure gcd(p-1,e) = 1 and
+     gcd(q-1,e) = 1. *)
+  let rec gen_factor nbits =
+    let n = random_prime ?rng safe nbits in
+    match e with
+      None -> n
+    | Some e ->
+        if Bn.relative_prime (Bn.sub n Bn.one) (nat_of_int e)
+        then n
+        else gen_factor nbits in
+  (* Make sure p > q *)
+  let rec gen_factors nbits =
+    let p = gen_factor nbits
+    and q = gen_factor nbits in
+    let cmp = Bn.compare p q in
+    if cmp = 0 then gen_factors nbits else
+    if cmp < 0 then (q, p) else (p, q) in
+  let (p, q) = gen_factors numbits2 in
+  (* p1 = p - 1 and q1 = q - 1 *)
+  let p1 = Bn.sub p Bn.one
+  and q1 = Bn.sub q Bn.one in
+  (* If no fixed exponent specified, generate random exponent e such that
+     gcd(p-1,e) = 1 and gcd(q-1,e) = 1 *)
+  let e =
+    match e with
+      Some e -> nat_of_int e
+    | None ->
+        let rec gen_exponent () =
+          let n = random_nat ?rng numbits in
+          if Bn.relative_prime n p1 && Bn.relative_prime n q1
+          then n
+          else gen_exponent () in
+        gen_exponent () in
+  (* n = pq *)
+  let n = Bn.mult p q in
+  (* d = e^-1 mod (p-1)(q-1) *)
+  let d = Bn.mod_inv e (Bn.mult p1 q1) in
+  (* dp = d mod p-1 and dq = d mod q-1 *)
+  let dp = Bn.mod_ d p1 and dq = Bn.mod_ d q1 in
+  (* qinv = q^-1 mod p *)
+  let qinv = Bn.mod_inv q p in
+  (* Build key *)
+  let res =
+    { size = numbits;
+      n = bytes_of_nat ~numbits:numbits n;
+      e = bytes_of_nat ~numbits:numbits e;
+      d = bytes_of_nat ~numbits:numbits d;
+      p = bytes_of_nat ~numbits:numbits2 p;
+      q = bytes_of_nat ~numbits:numbits2 q;
+      dp = bytes_of_nat ~numbits:numbits2 dp;
+      dq = bytes_of_nat ~numbits:numbits2 dq;
+      qinv = bytes_of_nat ~numbits:numbits2 qinv } in
+  wipe_nat n; wipe_nat e; wipe_nat d;
+  wipe_nat p; wipe_nat q;
+  wipe_nat p1; wipe_nat q1;
+  wipe_nat dp; wipe_nat dq; wipe_nat qinv;
+  res
+
+
+(** The [DAA] module implements the direct anonymous attestation protocol. *)
+module DAA : sig
+  module Issuer: sig
+    type key =
+      { size: int;	(** Size of the modulus [n], in bits (nee ℓ_n) *)
+        n: string;	(** Special RSA modulus [n = (2p'+1)(2q'+1)] *)
+        g': string;	(** Generator [<g'> = QR_n] *)
+        g: string;	(** [g ∈ <g'>] *)
+        h: string;	(** [h ∈ <g'>] *)
+        s: string;	(** [s ∈ <h>] *)
+        z: string;	(** [z ∈ <h>] *)
+        r0: string;	(** [r0 ∈ <S>] *)
+        r1: string;	(** [r1 ∈ <S>] *)
+        p'q': string	(** Secret *)
+      }
+      (** The type of issuer keys.  All components except [p'q'] are
+          public. *)
+  
+    val new_key: ?rng: Random.rng -> int -> key
+      (** Generate a new, random issuer key.  The non-optional [int]
+          argument is the desired size for the underlying special RSA modulus, in bits
+          (e.g. 1024).  The optional [rng] argument specifies a random
+          number generator to use for generating the key; it defaults to
+          {!Cryptokit.Random.secure_rng}. *)
+  end
+
+end
+
+module DAA = struct
+
+module Issuer = struct
+type key =
+  { size: int;
+    n: string;
+    g': string;
+    g: string; h: string;
+    s: string; z: string;
+    r0: string; r1: string;
+    p'q': string }
+
+(* PDS: We might be able to use the CRT for some of these mod_powers. *)
+
+let wrongorder a p =
+  let m = Bn.mod_ a p in
+  let meq n = (Bn.compare m n = 0) in
+  let meq' tmp = let r = meq tmp in wipe_nat tmp; r in
+  let r = meq Bn.zero || meq Bn.one || meq' (Bn.sub p Bn.one) in
+  wipe_nat m; r
+
+let rec find_generator ?rng n p q numbits =
+  let a = RSA.random_nat ?rng numbits in
+  if wrongorder a p || wrongorder a q
+  then find_generator ?rng n p q numbits
+  else
+    let r = Bn.mod_power a (nat_of_int 2) n in
+    wipe_nat a; r
+
+let pick_subgroup_members ?rng limit n =
+  let ln = Bn.num_bits limit in
+  let rec pick_power () =	(* {1,…,limit} *)
+    let i = RSA.random_nat ?rng ln in
+    if Bn.compare i limit >= 0 then pick_power()
+    else Bn.add i Bn.one in
+  let pick g = Bn.mod_power g (pick_power()) n in
+  fun g ->
+  let a = pick g in
+  let b = pick g in
+  (a,b)
+
+let new_key ?rng numbits =
+  let key = RSA.new_key ?rng ~safe:true numbits in
+  let n = nat_of_bytes key.RSA.n in
+  let p = nat_of_bytes key.RSA.p in
+  let q = nat_of_bytes key.RSA.q in
+  let g' = find_generator ?rng n p q numbits in
+  let p' = RSA.sgprime p in
+  let q' = RSA.sgprime q in
+  let p'q' = Bn.mult p' q' in
+  let pick = pick_subgroup_members ?rng p'q' n in
+  let (g,h) = pick g' in
+  let (s,z) = pick h in
+  let (r0,r1) = pick s in
+  let tostring x = bytes_of_nat ~numbits:numbits x in
+  let tostring x = let r = tostring x in wipe_nat x; r in
+  let res =
+    { size = numbits;
+      n = tostring n;
+      g' = tostring g';
+      g = tostring g;
+      h = tostring h;
+      s = tostring s;
+      z = tostring z;
+      r0 = tostring r0;
+      r1 = tostring r1;
+      (* PDS: numbits-2? *)
+      p'q' = tostring p'q' } in
+  RSA.wipe_key key;
+  wipe_nat p; wipe_nat q;
+  wipe_nat p'; wipe_nat q';
+  res
+
+end
+
+end
+
+
       g:string;	(** [g ∈ <g'>] *)
       h:string;	(** [h ∈ <g'>] *)
       S:string;	(** [S ∈ <h>] *)

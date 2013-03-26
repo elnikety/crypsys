@@ -206,7 +206,7 @@ val hash_channel: hash -> ?len:int -> in_channel -> string
       The hash [h] is wiped before returning, hence can
       no longer be used for further hash computations. *)
 
-(** {6 Utilities: random numbers and padding schemes} *)
+(** {6 Utilities: random numbers, padding schemes, and operations on big numbers} *)
 
 (** The [Random] module provides random and pseudo-random number generators
     suitable for generating cryptographic keys, nonces, or challenges. *)
@@ -318,6 +318,74 @@ module Padding : sig
   val _8000: scheme
     (** This padding scheme pads data with one [0x80] byte, followed
         by as many [0] bytes as needed to fill the block. *)
+end
+
+(** The [Bn] module provides arithmetic natural numbers. Intermediate
+values are systematically wiped. *)
+module Bn : sig
+
+  type nat = Nat.nat
+  
+  val nat_of_bytes : string -> nat
+  val bytes_of_nat: ?numbits:int -> nat -> string
+    (** The optional argument [numbits] defaults to the actual bit
+    length length of the given [nat]. *)
+    
+  val copy: nat -> nat
+  
+  val wipe_nat: nat -> unit
+  val wipe_string: string -> unit
+  
+  val zero: nat
+  val one: nat
+  
+  val compare: nat -> nat -> int
+  
+  val num_digits: nat -> int
+  val num_bits: nat -> int
+  
+  val add: nat -> nat -> nat
+  val sub: nat -> nat -> nat
+
+  val mult: nat -> nat -> nat
+  val mult_add: nat -> nat -> nat -> nat
+    (** [mult_add a b c] computes [a*b + c]. *)
+
+  val mod_: nat -> nat -> nat
+    (** [mod_ a b] computes [a mod b]. *)
+  val quo_mod: nat -> nat -> nat * nat
+    (** [quo_mod a b] divides [a] by [b], returning [q, m] satisfying
+    [a = b*q + m]. *)
+
+  val relative_prime: nat -> nat -> bool
+    (** [relative_prime a b] returns true if [gcd(a,b) = 1]. *)
+
+  val mod_power: nat -> nat -> nat -> nat
+    (** [mod_power a b n] computes [a^b mod n] assuming [a < n]. *)
+
+  val mod_power_CRT: nat -> nat -> nat -> nat -> nat -> nat -> nat
+    (** [mod_power_CRT a p q db dq qinv] computes [a^d mod pq] where
+        [d] is defined by [dp = d mod (p-1)] and [dq = d mod (q-1)]
+        and [qinv] is [q^-1 mod p]. *)
+
+  exception Not_invertible
+  val mod_inv: nat -> nat -> nat
+    (** Modular inverse. [mod_inv a n] returns [b] such that [ab ≡ 1
+    mod n] ⇔ [b ≡ a⁻¹ mod n] assuming [a < n]. It raises
+    Not_invertible if no such [b] exists (i.e., [gcd(a,n) ≠ 1]). *)
+    
+  val random_nat: ?rng: Random.rng -> ?lowbits:int -> int -> nat
+    (** [random_nat numbits] picks a random [n ∈ {0, …,
+    2^{numbits-1}}] and returns [n | lowbits]. The optional [rng]
+    specifies a source of randomness; it defaults to
+    {!Cryptokit.Random.secure_rng}. The optional [lowbits] defaults to
+    zero. *)
+  
+  val is_pseudoprime: nat -> bool
+    (** Some kind of probabilistic primality test. *)
+  
+  val random_prime: ?rng: Random.rng -> int -> nat
+    (** [random_prime n] picks a random, n-bit odd prime. *)
 end
 
 (** {6 Cryptographic primitives (simplified interface)} *)
@@ -597,7 +665,7 @@ module RSA: sig
   val wipe_key: key -> unit
     (** Erase all components of a RSA key. *)
 
-  val new_key: ?rng: Random.rng -> ?e: int -> ?safe: bool -> int -> key
+  val new_key: ?rng: Random.rng -> ?e: int -> int -> key
     (** Generate a new, random RSA key.  The non-optional [int]
         argument is the desired size for the modulus, in bits
         (e.g. 1024).  The optional [rng] argument specifies a random
@@ -607,10 +675,6 @@ module RSA: sig
         is chosen randomly.  Small values of [e] such as [e = 3]
         or [e = 65537] significantly speeds up encryption and
         signature checking compared with a random [e].
-        The optional [safe] argument specifies whether to
-        use safe primes p and q in constructing the modulus.
-        A safe prime has the form 2p+1 where p is prime.
-        If not specified, [safe] defaults to false.
         The result of [new_key] is a complete RSA key with all
         components defined: public, private, and private for use with
         the CRT. *)
@@ -656,34 +720,6 @@ module RSA: sig
         thus extracting the plaintext that was signed by the sender.
         The size of [msg] is limited as described for
         {!Cryptokit.RSA.encrypt}. *)
-end
-
-(** The [DAA] module implements the direct anonymous attestation protocol. *)
-module DAA : sig
-  module Issuer: sig
-    type key =
-      { size: int;	(** Size of the modulus [n], in bits (nee ℓ_n) *)
-        n: string;	(** Special RSA modulus [n = (2p'+1)(2q'+1)] *)
-        g': string;	(** Generator [<g'> = QR_n] *)
-        g: string;	(** [g ∈ <g'>] *)
-        h: string;	(** [h ∈ <g'>] *)
-        s: string;	(** [s ∈ <h>] *)
-        z: string;	(** [z ∈ <h>] *)
-        r0: string;	(** [r0 ∈ <S>] *)
-        r1: string;	(** [r1 ∈ <S>] *)
-        p'q': string	(** Secret *)
-      }
-      (** The type of issuer keys.  All components except [p'q'] are
-          public. *)
-  
-    val new_key: ?rng: Random.rng -> int -> key
-      (** Generate a new, random issuer key.  The non-optional [int]
-          argument is the desired size for the underlying special RSA modulus, in bits
-          (e.g. 1024).  The optional [rng] argument specifies a random
-          number generator to use for generating the key; it defaults to
-          {!Cryptokit.Random.secure_rng}. *)
-  end
-
 end
 
 (** The [DH] module implements Diffie-Hellman key agreement.

@@ -1192,6 +1192,10 @@ end
 
 module Bn = struct
 
+  type nat = Nat.nat
+  let wipe_nat = wipe_nat
+  let wipe_string = wipe_string
+
   let zero = nat_of_int 0
   let one = nat_of_int 1
 
@@ -1385,8 +1389,6 @@ module Bn = struct
       end in
     extended_euclid (nat_of_int 1) (nat_of_int 0) (copy b) (copy c) 1
 
-end
-
 (* Conversions between nats and strings *)
 
 let bytes_per_digit = length_of_digit / 8
@@ -1408,7 +1410,7 @@ let nat_of_bytes s =
   end
 
 let bytes_of_nat ?numbits n =
-  let nbits = Bn.num_bits n in
+  let nbits = num_bits n in
   begin match numbits with
     None -> ()
   | Some n -> if nbits > n then raise(Error Number_too_long)
@@ -1429,72 +1431,6 @@ let bytes_of_nat ?numbits n =
   | Some n ->
       let l' = ((n + 7) / 8) in
       if l = l' then s else String.make (l' - l) '\000' ^ s
-
-(* RSA operations *)
-
-module RSA = struct
-
-type key =
-  { size: int;
-    n: string;
-    e: string;
-    d: string;
-    p: string;
-    q: string;
-    dp: string;
-    dq: string;
-    qinv: string }
-
-let wipe_key k =
-  wipe_string k.n;
-  wipe_string k.e;
-  wipe_string k.d;
-  wipe_string k.p;
-  wipe_string k.q;
-  wipe_string k.dp;
-  wipe_string k.dq;
-  wipe_string k.qinv
-
-let encrypt key msg =
-  let msg = nat_of_bytes msg in
-  let n = nat_of_bytes key.n in
-  let e = nat_of_bytes key.e in
-  if Bn.compare msg n >= 0 then raise (Error Message_too_long);
-  let r = Bn.mod_power msg e n in
-  let s = bytes_of_nat ~numbits:key.size r in
-  wipe_nat msg; wipe_nat n; wipe_nat e; wipe_nat r;
-  s
-
-let unwrap_signature = encrypt
-
-let decrypt key msg =
-  let msg = nat_of_bytes msg in
-  let n = nat_of_bytes key.n in
-  let d = nat_of_bytes key.d in
-  if Bn.compare msg n >= 0 then raise (Error Message_too_long);
-  let r = Bn.mod_power msg d n in
-  let s = bytes_of_nat ~numbits:key.size r in
-  wipe_nat msg; wipe_nat n; wipe_nat d; wipe_nat r;
-  s
-
-let sign = decrypt
-
-let decrypt_CRT key msg =
-  let msg = nat_of_bytes msg in
-  let n = nat_of_bytes key.n in
-  let p = nat_of_bytes key.p in
-  let q = nat_of_bytes key.q in
-  let dp = nat_of_bytes key.dp in
-  let dq = nat_of_bytes key.dq in
-  let qinv = nat_of_bytes key.qinv in
-  if Bn.compare msg n >= 0 then raise (Error Message_too_long);
-  let r = Bn.mod_power_CRT msg p q dp dq qinv in
-  let s = bytes_of_nat ~numbits:key.size r in
-  wipe_nat msg; wipe_nat n; wipe_nat p; wipe_nat q;
-  wipe_nat dp; wipe_nat dq; wipe_nat qinv; wipe_nat r;
-  s
-
-let sign_CRT = decrypt_CRT
 
 let random_nat ?(rng = Random.secure_rng) ?(lowbits = 0) numbits =
   let numdigits = ((numbits + length_of_digit - 1) / length_of_digit) in
@@ -1651,7 +1587,7 @@ let small_primes = [
 ]
 
 let moduli_small_primes n =
-  let ln = Bn.num_digits n in
+  let ln = num_digits n in
   let dend = create_nat (ln + 1)
   and dsor = create_nat 1
   and quot = create_nat ln
@@ -1669,41 +1605,27 @@ let moduli_small_primes n =
   wipe_nat dend; wipe_nat dsor; wipe_nat quot; wipe_nat rem;
   res
 
-let is_divisible_by_small_prime safe delta remainders =
+let is_divisible_by_small_prime delta remainders =
   List.exists2
-    (fun p m -> let r = (m + delta) mod p in r = 0 || (safe && r = (p - 1) / 2))
+    (fun p m -> (m + delta) mod p = 0)
     small_primes remainders
  
 let pseudoprime_test_values = [2;3;5;7;11;13;17;19]
 
 let is_pseudoprime p =
-  let p1 = Bn.sub p Bn.one in
+  let p1 = sub p one in
   let res =
     List.for_all
       (fun x ->
-        let q = Bn.mod_power (nat_of_int x) p1 p in
-        let r = Bn.compare q Bn.one in
+        let q = mod_power (nat_of_int x) p1 p in
+        let r = compare q one in
         wipe_nat q;
         r = 0)
       pseudoprime_test_values in
   wipe_nat p1;
   res
 
-let sgprime p =
-  let q = Bn.sub p Bn.one in
-  let ln = Bn.num_digits q in
-  let tmp = create_nat 1 in
-  let () = shift_right_nat q 0 ln tmp 0 1 in
-  wipe_nat tmp; q
-
-let is_pseudoprime safe p =
-  is_pseudoprime p &&
-  (not safe ||
-  let p' = sgprime p in
-  let r = is_pseudoprime p' in
-  wipe_nat p'; r)
-
-let rec random_prime ?rng safe numbits =
+let rec random_prime ?rng numbits =
   (* Generate random odd number *)
   let n = random_nat ?rng ~lowbits:1 numbits in
   (* Precompute moduli with small primes *)
@@ -1711,30 +1633,101 @@ let rec random_prime ?rng safe numbits =
   (* Search from n *)
   let rec find_prime delta =
     if delta < 0 then (* arithmetic overflow in incrementing delta *)
-      random_prime ?rng safe numbits
-    else if is_divisible_by_small_prime safe delta moduli then
+      random_prime ?rng numbits
+    else if is_divisible_by_small_prime delta moduli then
       find_prime (delta + 2)
     else begin    
-      let n' = Bn.add n (nat_of_int delta) in
-      if is_pseudoprime safe n' then
-        if Bn.num_bits n' = numbits then begin
+      let n' = add n (nat_of_int delta) in
+      if is_pseudoprime n' then
+        if num_bits n' = numbits then begin
           wipe_nat n; n'
         end else begin (* overflow in adding delta to n *)
-          wipe_nat n; wipe_nat n'; random_prime ?rng safe numbits
+          wipe_nat n; wipe_nat n'; random_prime ?rng numbits
         end
       else
         find_prime (delta + 2)
     end in
   find_prime 0
 
-let new_key ?rng ?e ?(safe = false) numbits =
+end
+
+let nat_of_bytes = Bn.nat_of_bytes
+let bytes_of_nat = Bn.bytes_of_nat
+
+(* RSA operations *)
+
+module RSA = struct
+
+type key =
+  { size: int;
+    n: string;
+    e: string;
+    d: string;
+    p: string;
+    q: string;
+    dp: string;
+    dq: string;
+    qinv: string }
+
+let wipe_key k =
+  wipe_string k.n;
+  wipe_string k.e;
+  wipe_string k.d;
+  wipe_string k.p;
+  wipe_string k.q;
+  wipe_string k.dp;
+  wipe_string k.dq;
+  wipe_string k.qinv
+
+let encrypt key msg =
+  let msg = nat_of_bytes msg in
+  let n = nat_of_bytes key.n in
+  let e = nat_of_bytes key.e in
+  if Bn.compare msg n >= 0 then raise (Error Message_too_long);
+  let r = Bn.mod_power msg e n in
+  let s = bytes_of_nat ~numbits:key.size r in
+  wipe_nat msg; wipe_nat n; wipe_nat e; wipe_nat r;
+  s
+
+let unwrap_signature = encrypt
+
+let decrypt key msg =
+  let msg = nat_of_bytes msg in
+  let n = nat_of_bytes key.n in
+  let d = nat_of_bytes key.d in
+  if Bn.compare msg n >= 0 then raise (Error Message_too_long);
+  let r = Bn.mod_power msg d n in
+  let s = bytes_of_nat ~numbits:key.size r in
+  wipe_nat msg; wipe_nat n; wipe_nat d; wipe_nat r;
+  s
+
+let sign = decrypt
+
+let decrypt_CRT key msg =
+  let msg = nat_of_bytes msg in
+  let n = nat_of_bytes key.n in
+  let p = nat_of_bytes key.p in
+  let q = nat_of_bytes key.q in
+  let dp = nat_of_bytes key.dp in
+  let dq = nat_of_bytes key.dq in
+  let qinv = nat_of_bytes key.qinv in
+  if Bn.compare msg n >= 0 then raise (Error Message_too_long);
+  let r = Bn.mod_power_CRT msg p q dp dq qinv in
+  let s = bytes_of_nat ~numbits:key.size r in
+  wipe_nat msg; wipe_nat n; wipe_nat p; wipe_nat q;
+  wipe_nat dp; wipe_nat dq; wipe_nat qinv; wipe_nat r;
+  s
+
+let sign_CRT = decrypt_CRT
+
+let new_key ?rng ?e numbits =
   if numbits < 32 || numbits land 1 > 0 then raise(Error Wrong_key_size);
   let numbits2 = numbits / 2 in
   (* Generate primes p, q with numbits / 2 digits.
      If fixed exponent e, make sure gcd(p-1,e) = 1 and
      gcd(q-1,e) = 1. *)
   let rec gen_factor nbits =
-    let n = random_prime ?rng safe nbits in
+    let n = Bn.random_prime ?rng nbits in
     match e with
       None -> n
     | Some e ->
@@ -1759,7 +1752,7 @@ let new_key ?rng ?e ?(safe = false) numbits =
       Some e -> nat_of_int e
     | None ->
         let rec gen_exponent () =
-          let n = random_nat ?rng numbits in
+          let n = Bn.random_nat ?rng numbits in
           if Bn.relative_prime n p1 && Bn.relative_prime n q1
           then n
           else gen_exponent () in
@@ -1791,83 +1784,6 @@ let new_key ?rng ?e ?(safe = false) numbits =
 
 end
 
-module DAA = struct
-
-module Issuer = struct
-type key =
-  { size: int;
-    n: string;
-    g': string;
-    g: string; h: string;
-    s: string; z: string;
-    r0: string; r1: string;
-    p'q': string }
-
-(* PDS: We might be able to use the CRT for some of these mod_powers. *)
-
-let wrongorder a p =
-  let m = Bn.mod_ a p in
-  let meq n = (Bn.compare m n = 0) in
-  let meq' tmp = let r = meq tmp in wipe_nat tmp; r in
-  let r = meq Bn.zero || meq Bn.one || meq' (Bn.sub p Bn.one) in
-  wipe_nat m; r
-
-let rec find_generator ?rng n p q numbits =
-  let a = RSA.random_nat ?rng numbits in
-  if wrongorder a p || wrongorder a q
-  then find_generator ?rng n p q numbits
-  else
-    let r = Bn.mod_power a (nat_of_int 2) n in
-    wipe_nat a; r
-
-let pick_subgroup_members ?rng limit n =
-  let ln = Bn.num_bits limit in
-  let rec pick_power () =	(* {1,…,limit} *)
-    let i = RSA.random_nat ?rng ln in
-    if Bn.compare i limit >= 0 then pick_power()
-    else Bn.add i Bn.one in
-  let pick g = Bn.mod_power g (pick_power()) n in
-  fun g ->
-  let a = pick g in
-  let b = pick g in
-  (a,b)
-
-let new_key ?rng numbits =
-  let key = RSA.new_key ?rng ~safe:true numbits in
-  let n = nat_of_bytes key.RSA.n in
-  let p = nat_of_bytes key.RSA.p in
-  let q = nat_of_bytes key.RSA.q in
-  let g' = find_generator ?rng n p q numbits in
-  let p' = RSA.sgprime p in
-  let q' = RSA.sgprime q in
-  let p'q' = Bn.mult p' q' in
-  let pick = pick_subgroup_members ?rng p'q' n in
-  let (g,h) = pick g' in
-  let (s,z) = pick h in
-  let (r0,r1) = pick s in
-  let tostring x = bytes_of_nat ~numbits:numbits x in
-  let tostring x = let r = tostring x in wipe_nat x; r in
-  let res =
-    { size = numbits;
-      n = tostring n;
-      g' = tostring g';
-      g = tostring g;
-      h = tostring h;
-      s = tostring s;
-      z = tostring z;
-      r0 = tostring r0;
-      r1 = tostring r1;
-      (* PDS: numbits-2? *)
-      p'q' = tostring p'q' } in
-  RSA.wipe_key key;
-  wipe_nat p; wipe_nat q;
-  wipe_nat p'; wipe_nat q';
-  res
-
-end
-
-end
-
 (* Diffie-Hellman key agreement *)
 
 module DH = struct
@@ -1879,9 +1795,9 @@ type parameters =
 
 let new_parameters ?(rng = Random.secure_rng) ?(privlen = 160) numbits =
   if numbits < 32 || numbits <= privlen then raise(Error Wrong_key_size);
-  let np = RSA.random_prime ~rng false numbits in
+  let np = Bn.random_prime ~rng numbits in
   let rec find_generator () =
-    let g = RSA.random_nat ~rng (numbits - 1) in
+    let g = Bn.random_nat ~rng (numbits - 1) in
     if Bn.compare g Bn.one <= 0 then find_generator() else g in
   let ng = find_generator () in
   { p = bytes_of_nat ~numbits np;
@@ -1891,7 +1807,7 @@ let new_parameters ?(rng = Random.secure_rng) ?(privlen = 160) numbits =
 type private_secret = nat
 
 let private_secret ?(rng = Random.secure_rng) params =
-  RSA.random_nat ~rng params.privlen
+  Bn.random_nat ~rng params.privlen
 
 let message params privsec =
   bytes_of_nat ~numbits:(String.length params.p * 8)
