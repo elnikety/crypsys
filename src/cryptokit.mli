@@ -320,8 +320,8 @@ module Padding : sig
         by as many [0] bytes as needed to fill the block. *)
 end
 
-(** The [Bn] module provides arithmetic natural numbers. Intermediate
-values are systematically wiped. *)
+(** The [Bn] module provides arithmetic on natural numbers.
+Intermediate values are systematically wiped. *)
 module Bn : sig
 
   type nat = Nat.nat
@@ -389,6 +389,9 @@ module Bn : sig
   val safe : primekind
     (** A safe prime [p] has the form [2p' +1] for [p'] prime. *)
   
+  val sg_of_safe: nat -> nat
+    (** Maps [2p+1] to [p]. *)
+
   val random_prime: ?rng: Random.rng -> ?kind:primekind -> int -> nat
     (** [random_prime n] picks a random, n-bit odd prime. *)
 end
