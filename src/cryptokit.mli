@@ -379,7 +379,8 @@ module Bn : sig
     2^{numbits-1}}] and returns [n | lowbits]. The optional [rng]
     specifies a source of randomness; it defaults to
     {!Cryptokit.Random.secure_rng}. The optional [lowbits] defaults to
-    zero. *)
+    zero. PDS: This description is wrong. The result is precisely
+    [numbits] long. *)
   
   val is_pseudoprime: nat -> bool
     (** Some kind of probabilistic primality test. *)
@@ -393,7 +394,7 @@ module Bn : sig
     (** Maps [2p+1] to [p]. *)
 
   val random_prime: ?rng: Random.rng -> ?kind:primekind -> int -> nat
-    (** [random_prime n] picks a random, n-bit odd prime. *)
+    (** [random_prime n] picks a random, n-bit odd prime. PDS: This description is wrong. The result is precisely [n] bits long. *)
 end
 
 (** {6 Cryptographic primitives (simplified interface)} *)
