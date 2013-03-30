@@ -346,6 +346,9 @@ module Bn : sig
   
   val add: nat -> nat -> nat
   val sub: nat -> nat -> nat
+  
+  val sub_mod: nat -> nat -> nat -> nat
+    (* [sub_mod a b n] computes [(a - b) mod n]. *)
 
   val mult: nat -> nat -> nat
   val mult_add: nat -> nat -> nat -> nat
