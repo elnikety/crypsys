@@ -378,26 +378,33 @@ module Bn : sig
     Not_invertible if no such [b] exists (i.e., [gcd(a,n) ≠ 1]). *)
     
   val random_nat: ?rng: Random.rng -> ?lowbits:int -> int -> nat
-    (** [random_nat numbits] picks a random [n ∈ {0, …,
-    2^{numbits-1}}] and returns [n | lowbits]. The optional [rng]
-    specifies a source of randomness; it defaults to
-    {!Cryptokit.Random.secure_rng}. The optional [lowbits] defaults to
-    zero. PDS: This description is wrong. The result is precisely
-    [numbits] long. *)
-  
-  val is_pseudoprime: nat -> bool
-    (** Some kind of probabilistic primality test. *)
+    (** [random_nat numbits] picks a random [n] satisfying
+    	2^{numbits-1} < n < 2^{numbits}
+    and return [n | lowbits]. The optional [rng] specifies a source of
+    randomness; it defaults to {!Cryptokit.Random.secure_rng}. The
+    optional [lowbits] defaults to zero. *)
   
   type primekind
   val any : primekind
   val safe : primekind
     (** A safe prime [p] has the form [2p' +1] for [p'] prime. *)
-  
+
   val sg_of_safe: nat -> nat
     (** Maps [2p+1] to [p]. *)
 
+  val is_probably_prime: ?kind:primekind -> nat -> bool
+    (** Probabilistic primality test. If [is_probably_prime ~kind:any
+    p] returns false, then [p] is composite. If [is_probably_prime
+    ~kind:safe p] returns false, then [p] is not a safe prime. The
+    optional [kind] argument defaults to {!Cryptokit.Bn.any}. *)
+
   val random_prime: ?rng: Random.rng -> ?kind:primekind -> int -> nat
-    (** [random_prime n] picks a random, n-bit odd prime. PDS: This description is wrong. The result is precisely [n] bits long. *)
+    (** [random_prime numbits] picks a random, odd prime [p]
+    satisfying
+	2^{numbits-1} < p < 2^{numbits}.
+    The optional [kind] argument further restricts [p]; it defaults to
+    {!Cryptokit.Bn.any}. *)
+
 end
 
 (** {6 Cryptographic primitives (simplified interface)} *)

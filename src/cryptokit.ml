@@ -1660,6 +1660,10 @@ let safe : primekind =
   { small_divisor = safe_divisible_by_small_prime;
     pseudoprime = safe_pseudoprime }
 
+let is_probably_prime ?(kind = any) n =
+  not (kind.small_divisor n 0)
+  && kind.pseudoprime n
+
 let rec random_prime ?rng ?(kind = any) numbits =
   (* Generate random odd number *)
   let n = random_nat ?rng ~lowbits:1 numbits in
