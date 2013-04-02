@@ -1,0 +1,2 @@
+true: debug
+<*.ml> or <*.mli> or <*.native>: package(cryptokit)
