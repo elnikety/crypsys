@@ -379,7 +379,7 @@ module Bn : sig
     
   val random_nat: ?rng: Random.rng -> ?lowbits:int -> int -> nat
     (** [random_nat numbits] picks a random [n] satisfying
-    	2^{numbits-1} < n < 2^{numbits}
+    	[2^{numbits-1} < n < 2^{numbits}]
     and return [n | lowbits]. The optional [rng] specifies a source of
     randomness; it defaults to {!Cryptokit.Random.secure_rng}. The
     optional [lowbits] defaults to zero. *)
@@ -401,7 +401,7 @@ module Bn : sig
   val random_prime: ?rng: Random.rng -> ?kind:primekind -> int -> nat
     (** [random_prime numbits] picks a random, odd prime [p]
     satisfying
-	2^{numbits-1} < p < 2^{numbits}.
+	[2^{numbits-1} < p < 2^{numbits}.]
     The optional [kind] argument further restricts [p]; it defaults to
     {!Cryptokit.Bn.any}. *)
 
