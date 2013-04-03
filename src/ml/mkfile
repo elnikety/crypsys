@@ -1,0 +1,13 @@
+BUILD=ocamlbuild -use-ocamlfind -quiet
+
+all:V:
+	$BUILD join.native cl.native
+
+%.native:V:
+	$BUILD $target
+
+%.byte:V:
+	$BUILD $target
+
+clean:V:
+	$BUILD -clean

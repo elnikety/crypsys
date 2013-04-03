@@ -1,0 +1,55 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Cryptokit.Cipher.html">
+<link rel="next" href="Cryptokit.MAC.html">
+<link rel="Up" href="Cryptokit.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of class methods" rel=Appendix href="index_methods.html">
+<link title="Index of classes" rel=Appendix href="index_classes.html">
+<link title="Index of class types" rel=Appendix href="index_class_types.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Cryptokit" rel="Chapter" href="Cryptokit.html"><title>Cryptokit.Hash</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Cryptokit.Cipher.html" title="Cryptokit.Cipher">Previous</a>
+&nbsp;<a class="up" href="Cryptokit.html" title="Cryptokit">Up</a>
+&nbsp;<a class="post" href="Cryptokit.MAC.html" title="Cryptokit.MAC">Next</a>
+</div>
+<h1>Module <a href="type_Cryptokit.Hash.html">Cryptokit.Hash</a></h1>
+<pre><span class="keyword">module</span> Hash: <code class="code">sig</code> <a href="Cryptokit.Hash.html">..</a> <code class="code">end</code></pre><div class="info">
+The <code class="code">Hash</code> module implements unkeyed cryptographic hashes (SHA-1,
+    SHA-256, RIPEMD-160 and MD5), also known as message digest functions.  
+    Hash functions used in cryptography are characterized as being
+    <i>one-way</i> (given a hash value, it is computationally
+    infeasible to find a text that hashes to this value) and
+    <i>collision-resistant</i> (it is computationally infeasible to
+    find two different texts that hash to the same value).  Thus, the
+    hash of a text can be used as a compact replacement for this text
+    for the purposes of ensuring integrity of the text.<br>
+</div>
+<hr width="100%">
+<pre><span id="VALsha1"><span class="keyword">val</span> sha1</span> : <code class="type">unit -> <a href="Cryptokit.hash-c.html">Cryptokit.hash</a></code></pre><div class="info">
+SHA-1 is the Secure Hash Algorithm revision 1.  It is a NIST
+        standard, is widely used, and produces 160-bit hashes (20 bytes).
+        Recent results suggest that it is not collision-resistant.<br>
+</div>
+<pre><span id="VALsha256"><span class="keyword">val</span> sha256</span> : <code class="type">unit -> <a href="Cryptokit.hash-c.html">Cryptokit.hash</a></code></pre><div class="info">
+SHA-256, another NIST standard, is a variant of SHA-1 that
+        produces 256-bit hashes (32 bytes).<br>
+</div>
+<pre><span id="VALripemd160"><span class="keyword">val</span> ripemd160</span> : <code class="type">unit -> <a href="Cryptokit.hash-c.html">Cryptokit.hash</a></code></pre><div class="info">
+RIPEMD-160 produces 160-bit hashes (20 bytes).<br>
+</div>
+<pre><span id="VALmd5"><span class="keyword">val</span> md5</span> : <code class="type">unit -> <a href="Cryptokit.hash-c.html">Cryptokit.hash</a></code></pre><div class="info">
+MD5 is an older hash function, producing 128-bit hashes (16 bytes).
+        While popular in many legacy applications, it is now
+        considered as unsecure.  In particular, it is not
+        collision-resistant.<br>
+</div>
+</body></html>

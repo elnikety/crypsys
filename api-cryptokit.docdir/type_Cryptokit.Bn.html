@@ -1,0 +1,63 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of class methods" rel=Appendix href="index_methods.html">
+<link title="Index of classes" rel=Appendix href="index_classes.html">
+<link title="Index of class types" rel=Appendix href="index_class_types.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Cryptokit" rel="Chapter" href="Cryptokit.html"><title>Cryptokit.Bn</title>
+</head>
+<body>
+<code class="code"><span class="keyword">sig</span><br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;nat&nbsp;=&nbsp;<span class="constructor">Nat</span>.nat<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;nat_of_bytes&nbsp;:&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;bytes_of_nat&nbsp;:&nbsp;?numbits:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;copy&nbsp;:&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;wipe_nat&nbsp;:&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;wipe_string&nbsp;:&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;zero&nbsp;:&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;one&nbsp;:&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;compare&nbsp;:&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;num_digits&nbsp;:&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;num_bits&nbsp;:&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;add&nbsp;:&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;sub&nbsp;:&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;sub_mod&nbsp;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;mult&nbsp;:&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;mult_add&nbsp;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;mod_&nbsp;:&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;quo_mod&nbsp;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;*&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;relative_prime&nbsp;:&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;bool<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;mod_power&nbsp;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;mod_power_CRT&nbsp;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat<br>
+&nbsp;&nbsp;<span class="keyword">exception</span>&nbsp;<span class="constructor">Not_invertible</span><br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;mod_inv&nbsp;:&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;random_nat&nbsp;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;?rng:<span class="constructor">Cryptokit</span>.<span class="constructor">Random</span>.rng&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?lowbits:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat<br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;primekind<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;any&nbsp;:&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.primekind<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;safe&nbsp;:&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.primekind<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;sg_of_safe&nbsp;:&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;is_probably_prime&nbsp;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;?kind:<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.primekind&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;bool<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;random_prime&nbsp;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;?rng:<span class="constructor">Cryptokit</span>.<span class="constructor">Random</span>.rng&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;?kind:<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.primekind&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">Bn</span>.nat<br>
+<span class="keyword">end</span></code></body></html>
