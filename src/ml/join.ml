@@ -52,7 +52,8 @@ let blinding_factor_bits =
 
 type t =
   { group: Group.pubkey; rogue: Rogue.key;
-    f0: nat; f1: nat; zeta_I: nat; n_I: nat; v': nat; u: nat }
+    f0: nat; f1: nat; zeta_I: nat; n_I: nat; v': nat; u: nat;
+    n_h: nat }
     
 let join ?rng ~group ~rogue ~pk' ~bsn =
   let (f0,f1) = key ~rogue ~pk' in
@@ -60,7 +61,9 @@ let join ?rng ~group ~rogue ~pk' ~bsn =
   let n_I = Rogue.tag rogue ~zeta:zeta_I ~f0 ~f1 in
   let v' = Bn.random_nat blinding_factor_bits in
   let u = blind ~group ~f0 ~f1 ~v' in
-  let state = { group; rogue; f0; f1; zeta_I; n_I; v'; u } in
+  (* We pick the nonce know even though send it later. *)
+  let n_h = Bn.random_nat P.distribution_bits in
+  let state = { group; rogue; f0; f1; zeta_I; n_I; v'; u; n_h } in
   (state,u,n_I)
 
 end
@@ -157,8 +160,7 @@ let prove ?rng ~state ~n_i =
   let c = join_hash_inputs ~group ~bign_I:n_I ~bigu:u ~n_i ~n_t ts.tu ts.tn_I in
   let ss = join_respond ~state rs c in
   let pf = (c,n_t,ss) in
-  let n_h = Bn.random_nat P.distribution_bits in
-  (pf,n_h)
+  (pf,state.n_h)
 
 let check ~state (c,n_t,ss) =
   if String.length c * 8 != P.hash_bits then error "bad challenge";
@@ -176,6 +178,43 @@ module Sign = struct
 type proof = { c': string; s_e: Nat.nat }
 
 (*
+	The algebra behind our response. Writing m := Z / (US^{v''})
+	and suppressing moduli, we have
+	
+		A = m^{1/e}	(secret)
+		Atilde = m^r_e	(commitment)
+		s_e = r_e - c'/3	(response)
+	
+	and the verifier computes its hash over
+	
+		Ahat	= A^{c'}m^{se} = m^{c'/e} m^{s_e}
+			= m^{c'/e} m^{r_e} / m^{c'/e} = m^{r_e}
+			= Atilde.
+*)
+
+(** (Z / (US^{v''}))^power mod n *)
+let compute_A ~pub ~bigu ~v'' ~power : Nat.nat =
+  let open Group in let { z; s; n } = pub in
+  let denom = Numutil.mod_mult bigu (Bn.mod_power s v'' n) n in	(* US^{v''} mod n *)
+  let base = Numutil.mod_mult z (Bn.mod_inv denom n) n in	(* Z/(US^{v''}) mod n *)
+  Bn.mod_power base power n
+
+let hash_inputs ~pub ~bigu ~n_h ~v'' ~biga (biga':Nat.nat) : string =
+  let open Group in let { z; s; n } = pub in
+  let hash = P.new_hash() in
+  List.iter (Hashutil.add_nat hash) [n; z; s; bigu; v''; biga; biga'; n_h];
+  hash#result
+  
+let prove ?rng ~state ~n_h ~einv ~biga ~v'' : proof =
+  let open Joinreply in let open Group in let { bigu; group={ pub; p'q' } } = state in
+  let r_e = Numutil.random_nat_in ?rng Bn.zero p'q' in
+  let bigatilde = compute_A ~pub ~bigu ~v'' ~power:r_e in
+  let c' = hash_inputs ~pub ~bigu ~n_h ~v'' ~biga bigatilde in
+  let c'nat = Bn.nat_of_bytes c' in
+  let s_e = Bn.sub_mod r_e (Numutil.mod_mult c'nat einv p'q') p'q' in
+  { c'; s_e }
+
+(*
 	We pick the prime e from the set
 
 		{ 2^{ℓ_e-1}, …, 2^{ℓ_e-1} + 2^{ℓ'_e - 1} }.
@@ -184,15 +223,49 @@ type proof = { c': string; s_e: Nat.nat }
 	bits but only the low-order [prime_random_bits] are
 	unpredictable.
 *)
-let min_prime = power_of_two (Parm.prime_total_bits - 1)
-let max_prime = Bn.add min_prime (power_of_two (Parm.prime_random_bits - 1))
+let min_prime = power_of_two (P.prime_total_bits - 1)
+let max_prime = Bn.add min_prime (power_of_two (P.prime_random_bits - 1))
 
-let vhatbits = Parm.random_bits - 1
+let vhatbits = P.random_bits - 1
 
-let sign ?rng ~state =
-  error "nyi"
+let sign ?rng ~state ~n_h =
+  let open Joinreply in let open Group in let { bigu; group={ p'q'; pub } } = state in
+  let vhat = Bn.random_nat ?rng vhatbits in
+  let v'' = Bn.add vhat (power_of_two vhatbits) in
+  let e = Numutil.random_prime_in ?rng min_prime max_prime in
+  (*
+	The point of the signature scheme: Without the secret p'q', we
+	cannot efficiently compute e⁻¹ mod n.
+  *)
+  let einv = Bn.mod_inv e p'q' in
+  let biga = compute_A ~pub ~bigu ~v'' ~power:einv in	(* (Z / (US^{v''}))^{1/e} mod n *)
+  let proof = prove ?rng ~state ~n_h ~einv ~biga ~v'' in
+  let cert = { biga; e } in
+  (proof, cert, v'')
+
+let secret f0 f1 v =
+  let open Group in
+  { f0; f1; v }
 
 let check ~state ~proof ~cert ~v'' =
-  error "nyi"
-
+  let open Group in let open Join in
+  let { group=pub; f0; f1; v'; u=bigu; n_h } = state in
+  let { n } = pub in
+  let { c'; s_e } = proof in
+  let { biga; e } = cert in
+  if Bn.compare e min_prime < 0 || Bn.compare e max_prime > 0
+  then error "e out of range";
+  if not (Bn.is_probably_prime e) then error "e not prime";
+  let c'nat = Bn.nat_of_bytes c' in
+  let bigahat =
+    Numutil.mod_mult
+      (Bn.mod_power biga c'nat n)
+      (compute_A ~pub ~bigu ~v'' ~power:s_e)
+      n
+  in
+  let c = hash_inputs ~pub ~bigu ~n_h ~v'' ~biga bigahat in
+  if c != c' then error "hashes do not match";
+  let v = Bn.add v'' v' in
+  secret f0 f1 v
+  
 end

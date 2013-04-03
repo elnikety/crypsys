@@ -28,7 +28,9 @@
 		[A'₁ := A^e mod n]
 	and
 		[A'₂ := R₀^{f₀} R₁^{f₁} S^v Z mod n]
-	and checks if they're equal.
+	and checks if they're equal. (To create the signature means
+	finding [A] and requires either the secret key or the ability
+	to solve the RSA problem.)
 
 	The DAA analog to a CL signature [e,v,A] over message block
 	[f₀,f₁] is a DAA certificate [e,A] over a secret [f₀,f₁,v].
@@ -128,7 +130,7 @@ module Provejoin: sig
   val prove: ?rng: Cryptokit.Random.rng ->
     state: Join.t ->
     n_i: Nat.nat ->
-    proof * Nat.nat
+    proof * Nat.nat	(* proof, n_h *)
 
   val check: state: Joinreply.t -> proof -> unit
 
@@ -153,8 +155,8 @@ module Sign: sig
   type proof = { c': string; s_e: Nat.nat }
   
   val sign: ?rng: Cryptokit.Random.rng ->
-    state: Joinreply.t ->
-    proof * Group.cert * Nat.nat
+    state: Joinreply.t -> n_h: Nat.nat ->
+    proof * Group.cert * Nat.nat	(* proof', cert, v'' *)
   
   val check:
     state: Join.t ->

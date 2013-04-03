@@ -3,7 +3,9 @@
 3a. rogue.mli rogue.ml
 3b. provelog.mli provelog.ml
 4. group.mli group.ml
-5. issuer.mli issuer.ml
 4½ (background, signature code): clsig.ml cl.ml
+5. join.mli join.ml
 
 ../project/links ../project/proto
+
+cp -p * $home/src/cmd/crypsys/src/ml

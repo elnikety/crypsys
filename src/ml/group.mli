@@ -23,5 +23,5 @@ val check_key : pubkey -> unit
 (**
 	Cryptocard secrets and the corresponding certs.
 *)
-type cert = { a: Nat.nat; e: Nat.nat }
+type cert = { biga: Nat.nat; e: Nat.nat }
 type secret = { f0: Nat.nat; f1: Nat.nat; v: Nat.nat }

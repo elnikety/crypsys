@@ -41,7 +41,7 @@ let sign ?rng key msgs =
   let e = Bn.random_prime ?rng prime_bits in
   let s = Bn.random_nat ?rng random_bits in
   let v' = baseval key ms s in	(* (∏_i a_i^{m_i}) b^s c mod n *)
-  let einv = Bn.mod_inv e key.n in	(* e⁻¹ mod n *)
+  let einv = Bn.mod_inv e key.p in	(* e⁻¹ mod p *)
   let v = Bn.mod_power v' einv key.n in	(* ((∏_i a_i^{m_i}) b^s c)^{1/e} mod n *)
   { e = e; s = s; v = v }
 
