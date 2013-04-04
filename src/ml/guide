@@ -5,6 +5,7 @@
 4. group.mli group.ml
 4½ (background, signature code): clsig.ml cl.ml
 5. join.mli join.ml
+6. sign.mli sign.ml
 
 ../project/links ../project/proto
 

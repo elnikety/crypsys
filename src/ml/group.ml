@@ -43,6 +43,3 @@ let check_key { n; g'; g; h; s; z; r0; r1; proof } =
   let gs = [g; h; s; z; r0; r1] in
   let hs = [g'; g'; h; h; s; s] in
   Provelog.check ~n ~g' ~gs ~hs proof
-
-type cert = { biga: Nat.nat; e: Nat.nat }
-type secret = { f0: Nat.nat; f1: Nat.nat; v: Nat.nat }

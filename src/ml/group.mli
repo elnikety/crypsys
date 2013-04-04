@@ -19,9 +19,3 @@ type key = { pub: pubkey; p'q': Nat.nat }
 val new_key: ?rng: Cryptokit.Random.rng -> unit -> key
 val pubkey: key -> pubkey
 val check_key : pubkey -> unit
-
-(**
-	Cryptocard secrets and the corresponding certs.
-*)
-type cert = { biga: Nat.nat; e: Nat.nat }
-type secret = { f0: Nat.nat; f1: Nat.nat; v: Nat.nat }

@@ -1,7 +1,7 @@
 BUILD=ocamlbuild -use-ocamlfind -quiet
 
 all:V:
-	$BUILD join.native cl.native
+	$BUILD sign.native cl.native
 
 %.native:V:
 	$BUILD $target

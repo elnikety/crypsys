@@ -1,3 +1,4 @@
+let error = Util.error
 module Bn = Cryptokit.Bn
 module Hashutil = Util.Hashutil
 module Listutil = Util.Listutil
@@ -5,9 +6,10 @@ module Numutil = Util.Numutil
 module P = Parm
 type nat = Nat.nat
 
-let error = Util.error
+type cert = { biga: nat; e: nat }
+type secret = { f0: nat; f1: nat; v: nat }
 
-let power_of_two (k:int) : Nat.nat = Numutil.shift_left_nat Bn.one k
+let power_of_two (k:int) : nat = Numutil.shift_left_nat Bn.one k
 
 let hash_string (s:string) : string =
   let hash = P.new_hash() in
@@ -175,7 +177,7 @@ end
 
 module Sign = struct
 
-type proof = { c': string; s_e: Nat.nat }
+type proof = { c': string; s_e: nat }
 
 (*
 	The algebra behind our response. Writing m := Z / (US^{v''})
@@ -193,13 +195,13 @@ type proof = { c': string; s_e: Nat.nat }
 *)
 
 (** (Z / (US^{v''}))^power mod n *)
-let compute_A ~pub ~bigu ~v'' ~power : Nat.nat =
+let compute_A ~pub ~bigu ~v'' ~power : nat =
   let open Group in let { z; s; n } = pub in
   let denom = Numutil.mod_mult bigu (Bn.mod_power s v'' n) n in	(* US^{v''} mod n *)
   let base = Numutil.mod_mult z (Bn.mod_inv denom n) n in	(* Z/(US^{v''}) mod n *)
   Bn.mod_power base power n
 
-let hash_inputs ~pub ~bigu ~n_h ~v'' ~biga (biga':Nat.nat) : string =
+let hash_inputs ~pub ~bigu ~n_h ~v'' ~biga (biga':nat) : string =
   let open Group in let { z; s; n } = pub in
   let hash = P.new_hash() in
   List.iter (Hashutil.add_nat hash) [n; z; s; bigu; v''; biga; biga'; n_h];
@@ -243,9 +245,7 @@ let sign ?rng ~state ~n_h =
   let cert = { biga; e } in
   (proof, cert, v'')
 
-let secret f0 f1 v =
-  let open Group in
-  { f0; f1; v }
+let secret f0 f1 v = { f0; f1; v }
 
 let check ~state ~proof ~cert ~v'' =
   let open Group in let open Join in

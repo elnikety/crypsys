@@ -36,7 +36,7 @@
 	[f₀,f₁] is a DAA certificate [e,A] over a secret [f₀,f₁,v].
 
 	In the join protocol, an issuer and a cryptocard conspire to
-	produce such a certificate. The protocol using blinding
+	produce such a certificate. The protocol uses blinding
 	factors to prevent the issuer from learning the cryptocard's
 	secrets and zero-knowledge proofs to prevent adversarial
 	issuers/cryptocards from interfering with the scheme's
@@ -47,15 +47,15 @@
 		[U = R₀^{f₀} R₁^{f₁} S^{v'} mod n]
 	
 	containing a blinding factor v'; picks a random prime [e] and
-	random value [\hat{v}]; computes the unblinding factor
-
-		v'' := \hat{v} + 2^{ℓ_v - 1}
-
-	and sends the values
+	random value [\hat{v}]; picks a (mostly) random unblinding
+	factor v''; and sends the values
 
 		[A := (Z / (U S^{v''}))^{1/e} mod n]
 	
-	and v'' to the cryptocard. Thus,
+	and v'' to the cryptocard. (Regarding security, only the issuer
+	can compute the factor [e⁻¹ mod n] occurring in A.)
+	
+	Thus,
 	
 		A^e ≡ Z / (U S^{v''})	(mod n)
 	⇔	A^e ≡ Z / (R₀^{f₀} R₁^{f₁} S^{v'} S^{v''})	(mod n)
@@ -70,6 +70,13 @@
 	secrets f₀ and f₁, effectively unblinding the issuer's
 	certificate.
 *)
+
+(*
+	Cryptocard secrets, certs over them, and proofs
+	that corresponding certs.
+*)
+type secret = { f0: Nat.nat; f1: Nat.nat; v: Nat.nat }
+type cert = { biga: Nat.nat; e: Nat.nat }
 
 (**
 	C → I:	U, N_I
@@ -153,15 +160,15 @@ end
 module Sign: sig
 
   type proof = { c': string; s_e: Nat.nat }
-  
+
   val sign: ?rng: Cryptokit.Random.rng ->
     state: Joinreply.t -> n_h: Nat.nat ->
-    proof * Group.cert * Nat.nat	(* proof', cert, v'' *)
+    proof * cert * Nat.nat	(* proof', cert, v'' *)
   
   val check:
     state: Join.t ->
-    proof:proof -> cert:Group.cert -> v'':Nat.nat ->
-    Group.secret
+    proof:proof -> cert:cert -> v'':Nat.nat ->
+    secret
   (**
 	Raises an exception if anything is invalid.
   *)
