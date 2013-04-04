@@ -1,5 +1,5 @@
 #include <bigint.h>
-
+#include <string.h>
 #include "../include/bi.h"
 
 
@@ -38,7 +38,7 @@ BIpower(BigInt *a, BigInt *b, BigInt *n, BigInt *res)
 	bi_mod_exp(resbi, abi, bbi, nbi);
 
 	hex = bi_2_hex_char(resbi);
-	memcpy(hex, res->nBuff, sizeof(hex));
+	memcpy(res->nBuff, hex, strlen(hex));
 
 	bi_free(abi);
 	bi_free(bbi);
@@ -65,7 +65,7 @@ BImod(BigInt *a, BigInt *n, BigInt *res)
 	bi_mod(resbi, abi, nbi);
 
 	hex = bi_2_hex_char(resbi);
-	memcpy(hex, res->nBuff, sizeof(hex));
+	memcpy(res->nBuff, hex, strlen(hex));
 
 	bi_free(abi);
 	bi_free(nbi);
@@ -91,7 +91,7 @@ BImul(BigInt *a, BigInt *n, BigInt *res)
 	bi_mul(resbi, abi, nbi);
 
 	hex = bi_2_hex_char(resbi);
-	memcpy(hex, res->nBuff, sizeof(hex));
+	memcpy(res->nBuff, hex, strlen(hex));
 
 	bi_free(abi);
 	bi_free(nbi);
@@ -117,7 +117,7 @@ BIdiv(BigInt *a, BigInt *n, BigInt *res)
 	bi_div(resbi, abi, nbi);
 
 	hex = bi_2_hex_char(resbi);
-	memcpy(hex, res->nBuff, sizeof(hex));
+	memcpy(res->nBuff, hex, strlen(hex));
 
 	bi_free(abi);
 	bi_free(nbi);
@@ -143,7 +143,7 @@ BIsub(BigInt *a, BigInt *n, BigInt *res)
 	bi_sub(resbi, abi, nbi);
 
 	hex = bi_2_hex_char(resbi);
-	memcpy(hex, res->nBuff, sizeof(hex));
+	memcpy(res->nBuff, hex, strlen(hex));
 
 	bi_free(abi);
 	bi_free(nbi);
@@ -234,7 +234,7 @@ setBI(BigInt *n, int value)
 	bi_set_as_si(nbi, value);
 
 	hex = bi_2_hex_char(nbi);
-	memcpy(hex, n->nBuff, sizeof(hex));
+	memcpy(res->nBuff, hex, strlen(hex));
 
 	bi_free(nbi);
 	return 0;
@@ -257,3 +257,145 @@ noOfBits(BigInt *n)
 	return bits;
 }
 
+#define USE_CRYPTO 0
+
+#if USE_CRYPTO == 0
+
+int
+get_rnd(BigInt *n, int bits)
+{
+	bi_t nbi;
+	char *hex;
+
+	bi_new(nbi);
+	bi_urandom(nbi, bits);
+
+	hex = bi_2_hex_char(nbi);
+	memcpy(hex, n->nBuff, strlen(hex));
+
+	bi_free(nbi);
+
+	return 0;
+}
+
+int
+get_rnd_prime(BigInt *p, int bits)
+{
+	bi_t nbi;
+	char *hex;
+
+	bi_new(nbi);
+	bi_generate_safe_prime(nbi, bits);
+
+	hex = bi_2_hex_char(nbi);
+	memcpy(res->nBuff, hex, strlen(hex));
+
+	bi_free(nbi);
+
+	return 0;
+}
+
+int
+get_rnd_range(BigInt *n, BigInt *min, BigInt *max)
+{
+
+	bi_t maxbi, minbi, nbi;
+	char *hex;
+	int bits;
+
+	bi_new(maxbi);
+	bi_new(minbi);
+	bi_new(nbi);
+
+	bi_set_as_hex(minbi, min->nBuff);
+	bi_set_as_hex(maxbi, max->nBuff);
+
+	int bits = bi_length(maxbi);
+	assert(bi_cmp(maxbi, minbi) >= 0);
+
+	while(1)
+	{
+		bi_urandom(nbi, bits);
+		if(
+				(bi_cmp(nbi, minbi) >= 0) &&
+				(bi_cmp(maxbi, nbi) >= 0)	)
+		{
+			break;
+		}
+	}
+
+	hex = bi_2_hex_char(nbi);
+	memcpy(res->nBuff, hex, strlen(hex));
+
+	bi_free(maxbi);
+	bi_free(minbi);
+	bi_free(nbi);
+
+	return 0;
+}
+
+int
+get_rnd_prime_range(BigInt *p, BigInt *min, BigInt *max)
+{
+	bi_t maxbi, minbi, nbi;
+	char *hex;
+	int bits;
+
+	bi_new(maxbi);
+	bi_new(minbi);
+	bi_new(nbi);
+
+	bi_set_as_hex(minbi, min->nBuff);
+	bi_set_as_hex(maxbi, max->nBuff);
+
+	int bits = bi_length(maxbi);
+	assert(bi_cmp(maxbi, minbi) >= 0);
+
+	while(1)
+	{
+		bi_generate_safe_prime(nbi, bits);
+		if(
+				(bi_cmp(nbi, minbi) >= 0) &&
+				(bi_cmp(maxbi, nbi) >= 0)	)
+		{
+			break;
+		}
+	}
+
+	hex = bi_2_hex_char(nbi);
+	memcpy(res->nBuff, hex, strlen(hex));
+
+	bi_free(maxbi);
+	bi_free(minbi);
+	bi_free(nbi);
+
+	return 0;
+}
+
+#else
+
+int
+get_rnd(BigInt *n, int bits)
+{
+	//TODO
+}
+
+int
+get_rnd_prime(BigInt *p, int bits)
+{
+	//TODO
+}
+
+int
+get_rnd_range(BigInt *n, BigInt *min, BigInt *max)
+{
+	//TODO
+}
+
+int
+get_rnd_prime_range(BigInt *p, BigInt *min, BigInt *max)
+{
+	//TODO
+}
+
+#endif

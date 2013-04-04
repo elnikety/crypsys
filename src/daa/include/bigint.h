@@ -43,4 +43,17 @@ setBI(BigInt *n, int value);
 unsigned int
 noOfBits(BigInt n);
 
+/* rng functions */
+int
+get_rnd(BigInt *n, int bits);
+
+int
+get_rnd_prime(BigInt *p, int bits);
+
+int
+get_rnd_range(BigInt *n, BigInt *min, BigInt *max);
+
+int
+get_rnd_prime_range(BigInt *p, BigInt *min, BigInt *max);
+
 #endif
