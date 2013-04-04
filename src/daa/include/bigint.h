@@ -12,18 +12,6 @@ typedef struct BigInt{
 	  char nBuff[MAX_LIM_BUF_SIZE]; /* bn buffer                            */
 } BigInt;
 
-/**
- * returns res = a + b
- */
-int
-add(BigInt* a, BigInt* b, BigInt* res);
-
-/**
- * returns res = a - b
- */
-int
-sub(BigInt* a, BigInt* b, BigInt* res);
-
 int
 BIpower(BigInt *a, BigInt *b, BigInt *n, BigInt *res);
 
@@ -32,6 +20,24 @@ BImod(BigInt *a, BigInt *n, BigInt *res);
 
 int
 BImul(BigInt *a, BigInt *b, BigInt *res);
+
+int
+BIdiv(BigInt *a, BigInt *b, BigInt *res);
+
+int
+BIsub(BigInt *a, BigInt *b, BigInt *res);
+
+int
+BIcmp(BigInt *a, BigInt *b);
+
+int
+isPrime(BigInt *p);
+
+int
+BIdivides(BigInt *a, BigInt *b);
+
+int
+setBI(BigInt *n, int value);
 
 //returns the number of bits in n
 unsigned int

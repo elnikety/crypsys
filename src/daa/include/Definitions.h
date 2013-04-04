@@ -1,5 +1,8 @@
 #include "bigint.h"
 
+#ifndef DEFINITIONS_H_
+#define DEFINITIONS_H_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -42,16 +45,23 @@ typedef struct PublicKey {
   BigInt r0;
   BigInt r1;
   Proof prf;
-}PublicKey;
+} PublicKey;
 
-void Abort(char *s)
-{
-  printf("%s\n",s);
-  exit(0);
-}
+typedef struct Key {
+  BigInt bigGamma;
+  BigInt rho;
+  BigInt gamma;
+} Key;
+
+typedef struct rm {
+  BigInt r;
+  BigInt m;
+} TupleRM;
 
 unsigned int
 lengthBIL(BigIntList*);
 
 unsigned int
 lengthBILL(BigIntListList*);
+
+#endif

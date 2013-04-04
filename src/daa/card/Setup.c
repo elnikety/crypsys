@@ -1,5 +1,13 @@
 #include <Definitions.h>
 
+void Abort(char *s)
+{
+  printf("%s\n",s);
+  exit(0);
+}
+
+/* === Group Setup === */
+
 Bit NumStringBit(char* b, unsigned i)
 {
   Bit bit;
@@ -114,23 +122,92 @@ void GroupCheck(PublicKey *pk)
   BigIntList *gs, *hs;
   unsigned i;
 
-  if(noOfBits(pk->n) != rsa_modulus_bits && \
-      noOfBits(pk->gPrime) != rsa_modulus_bits && \
-      noOfBits(pk->g) != rsa_modulus_bits && \
-      noOfBits(pk->h) != rsa_modulus_bits && \
-      noOfBits(pk->s) != rsa_modulus_bits && \
-      noOfBits(pk->z) != rsa_modulus_bits && \
-      noOfBits(pk->r0) != rsa_modulus_bits && \
-      noOfBits(pk->r1) != rsa_modulus_bits \
+  //TODO allocate gs and hs
+
+  if( noOfBits(&pk->n) != rsa_modulus_bits && \
+      noOfBits(&pk->gPrime) != rsa_modulus_bits && \
+      noOfBits(&pk->g) != rsa_modulus_bits && \
+      noOfBits(&pk->h) != rsa_modulus_bits && \
+      noOfBits(&pk->s) != rsa_modulus_bits && \
+      noOfBits(&pk->z) != rsa_modulus_bits && \
+      noOfBits(&pk->r0) != rsa_modulus_bits && \
+      noOfBits(&pk->r1) != rsa_modulus_bits \
       )
       exit(1);
    
-   BilInsert(gs, pk->g);    BilInsert(gs, pk->h);    BilInsert(gs, pk->s);
-   BilInsert(gs, pk->z);   BilInsert(gs, pk->r0);    BilInsert(gs, pk->r1);
+   BilInsert(gs, &pk->g);   BilInsert(gs, &pk->h);     BilInsert(gs, &pk->s);
+   BilInsert(gs, &pk->z);   BilInsert(gs, &pk->r0);    BilInsert(gs, &pk->r1);
 
-   BilInsert(hs, pk->gPrime); BilInsert(hs, pk->gPrime);
-   BilInsert(hs, pk->h); BilInsert(hs, pk->h);
-   BilInsert(hs, pk->s); BilInsert(hs, pk->s);
+   BilInsert(hs, &pk->gPrime); 		BilInsert(hs, &pk->gPrime);
+   BilInsert(hs, &pk->h); 			BilInsert(hs, &pk->h);
+   BilInsert(hs, &pk->s); 			BilInsert(hs, &pk->s);
 
-   ProveLogCheck(pk->n, pk->gPrime, gs, hs, pk->prf);
+   ProveLogCheck(&pk->n, &pk->gPrime, gs, hs, &pk->prf);
+}
+
+/* === Rogue Setup === */
+void recoverR(BigInt *bigGamma, BigInt *rho, TupleRM *r)
+{
+
+	BigInt one, gammaPrime;
+	BigInt *biOne, *bigGammaPrime;
+
+	biOne = &one;
+	bigGammaPrime = &gammaPrime;
+
+	setBI(biOne, 1);
+	BIsub(bigGamma, biOne, bigGammaPrime);
+
+	BIdiv(bigGammaPrime, rho, &r->r);
+	BImod(bigGammaPrime, rho, &r->m);
+}
+
+void RogueCheck(Key *k)
+{
+  char error[MAX_CHAR_ARRAY_LENGTH];
+  TupleRM rm;
+  BigInt zero, one, v;
+  BigInt *biZero, *biOne, *biv;
+
+  setBI(biZero, 0);
+  setBI(biOne, 1);
+
+  if(noOfBits(&k->bigGamma) != rogue_modulus_bits){
+    strcpy(error,"Γ is out of bounds");
+    Abort(error);
+  }
+
+  if(noOfBits(&k->rho) != rogue_security_bits){
+    strcpy(error,"ρ is out of bounds");
+    Abort(error);
+  }
+
+  if(!isPrime(&k->bigGamma)){
+    strcpy(error,"Γ is composite");
+    Abort(error);
+  }
+  if(!isPrime(&k->rho)){
+    strcpy(error,"ρ is composite");
+    Abort(error);
+  }
+
+  recoverR(&k->bigGamma, &k->rho, &rm);
+
+  if(BIcmp(&rm.m, biZero)!=0){
+    strcpy(error,"ρ does not divide Γ - 1");
+    Abort(error);
+  }
+
+  if(BIdivides(&k->rho, &rm.r)!=0){
+    strcpy(error,"ρ divides r");
+    Abort(error);
+  }
+
+  BIpower(&k->gamma, &k->rho, &k->bigGamma, biv);
+
+  if(BIcmp(biv, biOne)!=0){
+    strcpy(error,"γ bad");
+    Abort(error);
+  }
+
 }
