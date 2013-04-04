@@ -162,6 +162,77 @@ void recoverR(BigInt *bigGamma, BigInt *rho, TupleRM *r)
 	BImod(bigGammaPrime, rho, &r->m);
 }
 
+void checkBase(Key *key, BigInt *zeta)
+{
+	BigInt vbi, *v, onebi, *one;
+	char error[MAX_CHAR_ARRAY_LENGTH];
+
+	v = &vbi;
+	one = &onebi;
+
+	BIpower(zerta, &key->rho, &key->bigGamma, v);
+	setBI(one, 1);
+
+	if(BIcmp(v, one) != 0)
+	{
+	    strcpy(error,"ζ unusable");
+	    Abort(error);
+	}
+}
+
+void computeBase(char* bsn, Key *key, BigInt *ret)
+{
+	BigInt hbi, *h, onebi, *one;
+	BigInt rhoPbi, *rhoP, ibi, *i;
+	TupleRM rm;
+
+	h = &hbi;
+	i = &ibi;
+	one = &onebi;
+	rhoP = &rhoPbi;
+
+	setBI(one, 1);
+
+	if(bsn)
+	{
+		recoverR(&key->bigGamma, &key->rho, &rm);
+		hashName(bsn, h);
+		BIpower(h, &rm.r, &key->bigGamma, ret);
+	}
+	else
+	{
+		BIsub(&key->rho, one, rhoP);
+		get_rnd_range(i, one, rhoP);
+		BIpower(&key->gamma, i, &key->bigGamma, ret);
+	}
+}
+
+void base(char* bsn, Key *key, BigInt *zeta)
+{
+	computeBase(bsn, key, zeta);
+	checkBase(key, zeta);
+}
+
+void tag(Key *key, BigInt *zeta, BigInt *f0, BigInt *f1, BitInt *res)
+{
+  BigInt ftbi, fbi, *ft, *f;
+  char error[MAX_CHAR_ARRAY_LENGTH];
+
+  ft = &ftbi;
+  f = &fbi;
+
+  BIshiftLeft(f1, halfkeyBits, ft);
+  BIadd(f0, f1, f);
+
+  if(noOfBits(f) >= rogue_security_bits){
+	    strcpy(error,"tag");
+	    Abort(error);
+  }
+
+  BIpower(zerta, f, &key->bigGamma, res);
+}
+
+
 void RogueCheck(Key *k)
 {
   char error[MAX_CHAR_ARRAY_LENGTH];

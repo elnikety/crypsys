@@ -28,6 +28,9 @@ int
 BIsub(BigInt *a, BigInt *b, BigInt *res);
 
 int
+BIadd(BigInt *a, BigInt *b, BigInt *res);
+
+int
 BIcmp(BigInt *a, BigInt *b);
 
 int
@@ -55,5 +58,9 @@ get_rnd_range(BigInt *n, BigInt *min, BigInt *max);
 
 int
 get_rnd_prime_range(BigInt *p, BigInt *min, BigInt *max);
+
+/* shift operators */
+int
+BIshiftLeft(BigInt *n, int shift, BigInt *res);
 
 #endif
