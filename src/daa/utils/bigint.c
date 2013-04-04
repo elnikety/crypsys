@@ -161,7 +161,6 @@ BIcmp(BigInt *a, BigInt *n)
 
 	bi_new(abi);
 	bi_new(nbi);
-	bi_new(resbi);
 
 	bi_set_as_hex(abi, a->nBuff);
 	bi_set_as_hex(nbi, n->nBuff);
@@ -182,7 +181,7 @@ isPrime(BigInt *p)
 	initialize();
 
 	bi_new(nbi);
-	bi_set_as_hex(nbi, n->nBuff);
+	bi_set_as_hex(nbi, p->nBuff);
 
 	is_prime = bi_is_probable_prime(nbi);
 
@@ -205,9 +204,9 @@ BIdivides(BigInt *a, BigInt *b)
 	bi_set_as_hex(abi, a->nBuff);
 	bi_set_as_hex(bbi, b->nBuff);
 
-	bi_gcd(resbi, abi, bni);
+	bi_gcd(resbi, abi, bbi);
 
-	if(bi_equals(resbi, bni))
+	if(bi_equals(resbi, bbi))
 	{
 		res = 1;
 	}
