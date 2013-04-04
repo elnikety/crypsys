@@ -12,6 +12,10 @@
 
 #define rsa_modulus_bits	2048
 #define hash_bits	160
+#define rogue_modulus_bits	1632
+#define rogue_security_bits	208
+#define halfkeyBits	104
+#define distribution_bits	80
 
 typedef enum Bool{True, False} Bool;
 typedef enum Bit{zero, one} Bit;

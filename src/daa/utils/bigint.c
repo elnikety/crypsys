@@ -153,6 +153,32 @@ BIsub(BigInt *a, BigInt *n, BigInt *res)
 }
 
 int
+BIadd(BigInt *a, BigInt *n, BigInt *res)
+{
+	bi_t abi, nbi, resbi;
+	char *hex;
+	initialize();
+
+	bi_new(abi);
+	bi_new(nbi);
+	bi_new(resbi);
+
+	bi_set_as_hex(abi, a->nBuff);
+	bi_set_as_hex(nbi, n->nBuff);
+
+	bi_add(resbi, abi, nbi);
+
+	hex = bi_2_hex_char(resbi);
+	memcpy(res->nBuff, hex, strlen(hex));
+
+	bi_free(abi);
+	bi_free(nbi);
+	bi_free(resbi);
+
+	return 0;
+}
+
+int
 BIcmp(BigInt *a, BigInt *n)
 {
 	bi_t abi, nbi;
@@ -255,6 +281,29 @@ noOfBits(BigInt *n)
 	bi_free(nbi);
 
 	return bits;
+}
+
+int
+BIshiftLeft(BigInt *n, int shift, BigInt *res)
+{
+	bi_t resbi, nbi;
+	char *hex;
+	initialize();
+
+	bi_new(resbi);
+	bi_new(nbi);
+
+	bi_set_as_hex(nbi, n->nBuff);
+
+	bi_shift_left(resbi, n, shift);
+
+	hex = bi_2_hex_char(resbi);
+	memcpy(res->nBuff, hex, strlen(hex));
+
+	bi_free(resbi);
+	bi_free(nbi);
+
+	return ret;
 }
 
 #define USE_CRYPTO 0
