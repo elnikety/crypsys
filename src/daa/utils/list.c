@@ -10,7 +10,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "../include/list.h"
+#include "../include/Definitions.h"
 
 list_ptr list_new( void) {
 	list_ptr list = (list_ptr)malloc( sizeof( list_struct));
@@ -60,4 +62,27 @@ void list_freeall(list_ptr list) {
 			current = next;
 		} while(current != NULL); // until current node is NULL
 	}
+}
+
+
+void BilInsert(BigIntList*, BigInt)
+{
+	//TODO
+}
+
+void BillInsert(BigIntListList*, BigIntList*)
+{
+	//TODO
+}
+
+unsigned int
+lengthBIL(BigIntList*)
+{
+	//TODO
+}
+
+unsigned int
+lengthBILL(BigIntListList*)
+{
+	//TODO
 }
