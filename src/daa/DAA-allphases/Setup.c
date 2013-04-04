@@ -1,4 +1,5 @@
 #include "Definitions.h"
+#include "Rogue.h"
 
 /*****************Group Setup*************************************************************/
 Bit NumStringBit(char* b, unsigned i)
@@ -115,7 +116,7 @@ void GroupCheck(PublicKey pk)
 void RogueCheck(Key k)
 {
   char error[MAX_CHAR_ARRAY_LENGTH];
-  TupleRM rm;
+  Tuple rm;
   BigInt biZero, biOne,v;
 
   if(noOfBits(k.bigGamma) != rogue_modulus_bits){

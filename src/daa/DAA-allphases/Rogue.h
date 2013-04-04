@@ -2,8 +2,9 @@
 #define ROGUE_H_
 
 #include "Definitions.h"
+#include "Crypto.h"
 
-TupleRM recoverR(BigInt bigGamma, BigInt rho)
+Tuple recoverR(BigInt bigGamma, BigInt rho)
 {
   BigInt biOne;
   TupleRM R;
@@ -27,7 +28,7 @@ void checkBase(RogueKey key, BigInt zeta)
 BigInt computeBase(char* bsn, RogueKey key)
 {
   BigInt h;
-  TupleRM rm;
+  Tuple rm;
   BigInt rhoPrime,i;
   BigInt biOne; //contant one
   if(bsn == NULL){

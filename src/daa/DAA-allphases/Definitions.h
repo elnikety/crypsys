@@ -1,7 +1,7 @@
 #ifndef DEFINITIONS_H_
 #define DEFINITIONS_H_
 
-#include "../include/bigint.h"
+#include "bigint.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -4,7 +4,7 @@
 #ifndef BIGINT_H_
 #define BIGINT_H_
 
-#include "limserv.h"
+#include "../include/limserv.h"
 
 typedef struct BigInt{
 	  int bnBits;                    /* number of bits in bn                 */
@@ -35,7 +35,9 @@ unsigned BIdivides(BigInt,BigInt);
 BigInt BIsub(BigInt,BigInt);
 unsigned BIisProbablyPrime(BigInt);
 BigInt BIStringtoNumber(char*);
-BigInt BIextract(BigInt, unsigned, unsigned);
+BigInt BIextract(BigInt, unsigned offset, unsigned len);//gives the number from the bit offset to the bit offset + len
 BigInt BIshiftLeft(BigInt, unsigned);
+char* BIgetBytes(BigInt);
+BigInt BItoNumber(char*);
 
 #endif

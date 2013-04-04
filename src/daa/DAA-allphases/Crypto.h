@@ -4,12 +4,7 @@
 #include "Definitions.h"
 
 //used for hashing bsn
-BigInt hashName(char* name)
-{
-  BigInt r;
-  
-  return r;
-}
+BigInt hashName(char* name);
 
 char* hashString(char* s)
 {
@@ -22,5 +17,10 @@ char* hashString(char* s)
 
 unsigned* getCnt();
 BigInt getRandomNumber(unsigned);
+typedef BigInt Hash;
+
+Hash getSha1Hash();
+void addBytes(Hash*, char*);
+char* hashResult(Hash);
 
 #endif
