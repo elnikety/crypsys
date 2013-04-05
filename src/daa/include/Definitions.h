@@ -20,20 +20,6 @@
 typedef enum Bool{True, False} Bool;
 typedef enum Bit{zero, one} Bit;
 
-typedef struct BigIntList{
-    BigInt *n;
-    struct BigIntList* next;
-}BigIntList;
-
-void BilInsert(BigIntList*, BigInt *bi);
-
-typedef struct BigIntListList{
-  BigIntList* l;
-  struct BigIntListList* next;
-}BigIntListList;
-
-void BillInsert(BigIntListList*, BigIntList*);
-
 typedef struct Proof{
   char str[MAX_CHAR_ARRAY_LENGTH];
   BigIntListList* nat;
@@ -61,12 +47,6 @@ typedef struct rm {
   BigInt r;
   BigInt m;
 } TupleRM;
-
-unsigned int
-lengthBIL(BigIntList*);
-
-unsigned int
-lengthBILL(BigIntListList*);
 
 unsigned int
 get_count();

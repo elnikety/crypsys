@@ -28,7 +28,6 @@ typedef struct {
 typedef list_struct* list_ptr;
 typedef list_struct list_t[1];
 
-
 list_ptr list_new();
 
 void list_add(list_ptr list, void * obj);
@@ -36,5 +35,28 @@ void list_add(list_ptr list, void * obj);
 void list_dump(list_ptr list);
 
 void list_freeall(list_ptr list);
+
+/* list specific implementation */
+#include "bigint.h"
+
+typedef struct BigIntList{
+    BigInt *n;
+    struct BigIntList* next;
+}BigIntList;
+
+void BilInsert(BigIntList*, BigInt *bi);
+
+typedef struct BigIntListList{
+  BigIntList* l;
+  struct BigIntListList* next;
+}BigIntListList;
+
+void BillInsert(BigIntListList*, BigIntList*);
+
+unsigned int
+lengthBIL(BigIntList*);
+
+unsigned int
+lengthBILL(BigIntListList*);
 
 #endif /*LIST_H_*/

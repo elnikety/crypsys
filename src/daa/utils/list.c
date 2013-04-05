@@ -65,24 +65,44 @@ void list_freeall(list_ptr list) {
 }
 
 
-void BilInsert(BigIntList*, BigInt)
+void BilInsert(BigIntList* list, BigInt *bi)
 {
-	//TODO
+	list_add(list, bi);
 }
 
-void BillInsert(BigIntListList*, BigIntList*)
+void BillInsert(BigIntListList* llist, BigIntList* l)
 {
-	//TODO
+	list_add(llist, l);
 }
 
 unsigned int
-lengthBIL(BigIntList*)
+lengthBIL(BigIntList* list)
 {
-	//TODO
+	int i;
+
+	i = 0;
+	void *itr = list;
+	while(itr != NULL)
+	{
+		itr = ((BigIntList *) itr)->next;
+		i++;
+	}
+
+	return i;
 }
 
 unsigned int
 lengthBILL(BigIntListList*)
 {
-	//TODO
+	int i;
+
+	i = 0;
+	void *itr = list;
+	while(itr != NULL)
+	{
+		itr = ((BigIntListList *) itr)->next;
+		i++;
+	}
+
+	return i;
 }
