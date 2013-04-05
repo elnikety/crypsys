@@ -1,3 +1,5 @@
+type nat = Nat.nat
+
 exception Error of string
 val error : string -> 'a
 
@@ -32,7 +34,7 @@ end
 
 module Numutil: sig
 
-  val nat_bit: Nat.nat -> int -> bool
+  val nat_bit: nat -> int -> bool
   (** [nat_bit n i] returns the ith bit of n. *)
 
   val string_bit: string -> int -> bool
@@ -42,16 +44,16 @@ module Numutil: sig
 	right-most bit.
   *)
 
-  val divides: Nat.nat -> Nat.nat -> bool
+  val divides: nat -> nat -> bool
   (** [divides a b] is true if a | b. *)
 
-  val mod_mult: Nat.nat -> Nat.nat -> Nat.nat -> Nat.nat
+  val mod_mult: nat -> nat -> nat -> nat
   (** [mod_mult a b n] returns [ab mod n]. *)
   
-  val mod_mult_power: Nat.nat -> Nat.nat -> Nat.nat -> n:Nat.nat -> Nat.nat
+  val mod_mult_power: nat -> nat -> nat -> n:nat -> nat
   (** [mod_mult_power v g m ~n] returns [v g^m mod n]. *)
   
-  val mod_mult_powers: Nat.nat -> Nat.nat list -> Nat.nat list -> n:Nat.nat -> Nat.nat
+  val mod_mult_powers: nat -> nat list -> nat list -> n:nat -> nat
   (**
 	[mod_mult_powers v [g₁; ...; g_k] [m₁; ...; m_k] ~n] returns
 		[v g₁^{m₁} ⋯ g_k^{m_k} mod n].
@@ -60,29 +62,38 @@ module Numutil: sig
 	It returns a copy of v if the lists are empty.
   *)
 
-  val shift_left_nat: Nat.nat -> int -> Nat.nat
+  val mod_powers : nat -> (nat * nat) list -> n:nat -> nat
+  (**
+	[mod_powers v [(g₁,m₁); ⋯; (g_k,n_k)] ~n] returns
+  		[v·∏(i∈{1,…,k}) g_i^{m_i} mod n].
+  *)
+
+  val shift_left_nat: nat -> int -> nat
   (** [shift_left_nat n i] returns n·2^i. *)
 
-  val extract_nat: Nat.nat -> int -> int -> Nat.nat
+  val power_of_two: int -> nat
+  (** [power_of_two n] returns 2^n. *)
+
+  val extract_nat: nat -> int -> int -> nat
   (**
 	[extract_nat n offset len] returns the number corresponding to
 	bits [offset] to [offset+len] of the binary representation of
 	[n].
   *)
 
-  val random_nat_in: ?rng: Cryptokit.Random.rng -> Nat.nat -> Nat.nat -> Nat.nat
-  val random_nat_in': ?rng: Cryptokit.Random.rng -> Nat.nat -> Nat.nat -> unit -> Nat.nat
+  val random_nat_in: ?rng: Cryptokit.Random.rng -> nat -> nat -> nat
+  val random_nat_in': ?rng: Cryptokit.Random.rng -> nat -> nat -> unit -> nat
   (**
 	[random_nat_in a b] returns a random value in {a,…,b}.
   *)
   
-  val random_prime_in: ?rng: Cryptokit.Random.rng -> ?kind: Cryptokit.Bn.primekind -> Nat.nat -> Nat.nat -> Nat.nat
-  val random_prime_in': ?rng: Cryptokit.Random.rng -> ?kind: Cryptokit.Bn.primekind -> Nat.nat -> Nat.nat -> unit -> Nat.nat
+  val random_prime_in: ?rng: Cryptokit.Random.rng -> ?kind: Cryptokit.Bn.primekind -> nat -> nat -> nat
+  val random_prime_in': ?rng: Cryptokit.Random.rng -> ?kind: Cryptokit.Bn.primekind -> nat -> nat -> unit -> nat
   (**
 	[random_prime_in a b] returns a random prime in {a,…,b}.
   *)
 
-  val nat_of_msg: int -> string -> Nat.nat
+  val nat_of_msg: int -> string -> nat
   (**
 	[nat_of_msg maxbits s] converts [s] (a big-endian
 	byte array) to a natural number, raising an exception
@@ -102,7 +113,7 @@ module Hashutil: sig
 
   val add_list: (Cryptokit.hash -> 'a -> unit) -> Cryptokit.hash -> 'a list -> unit
 
-  val add_nat: ?numbits: int -> Cryptokit.hash -> Nat.nat -> unit
+  val add_nat: ?numbits: int -> Cryptokit.hash -> nat -> unit
   (**
 	[add_nat h n] sends the bytes of [n] to [h] in big-endian
 	order. The function can pad [n] with zero bits on the left:
@@ -111,7 +122,7 @@ module Hashutil: sig
 	bit-length of [n].
   *)
 
-  val add_nat_list: ?numbits: int -> Cryptokit.hash -> Nat.nat list -> unit
+  val add_nat_list: ?numbits: int -> Cryptokit.hash -> nat list -> unit
   (**
   	[add_nat_list h [n₁; ⋯; n_k]] sends the [n_i]'s to [h] using
   	[hash_nat].
@@ -166,21 +177,21 @@ module Rsa: sig
 	do not make copies.
   *)
 
-  val factors: modulus -> Nat.nat * Nat.nat * Nat.nat
+  val factors: modulus -> nat * nat * nat
   (** n, p, q *)
 
-  val n: modulus -> Nat.nat
-  val p: modulus -> Nat.nat
-  val q: modulus -> Nat.nat
-  val p': modulus -> Nat.nat
-  val q': modulus -> Nat.nat
-  val p'q': modulus -> Nat.nat
+  val n: modulus -> nat
+  val p: modulus -> nat
+  val q: modulus -> nat
+  val p': modulus -> nat
+  val q': modulus -> nat
+  val p'q': modulus -> nat
 
-  val new_QR_n_generator: ?rng: Cryptokit.Random.rng -> modulus -> Nat.nat
+  val new_QR_n_generator: ?rng: Cryptokit.Random.rng -> modulus -> nat
   (** Picks a random generator of QR_n. *)
 
-  val new_QR_n_member: ?rng: Cryptokit.Random.rng -> base: Nat.nat -> modulus -> Nat.nat * Nat.nat
-  val new_QR_n_member': ?rng: Cryptokit.Random.rng -> base: Nat.nat -> modulus -> unit -> Nat.nat * Nat.nat
+  val new_QR_n_member: ?rng: Cryptokit.Random.rng -> base: nat -> modulus -> nat * nat
+  val new_QR_n_member': ?rng: Cryptokit.Random.rng -> base: nat -> modulus -> unit -> nat * nat
   (**
 	Assuming base ∈ QR_n, the function picks a random r ∈
 	{1,…,p'q'}, computes g = base^r mod n ∈ <base>, and returns

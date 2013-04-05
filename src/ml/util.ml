@@ -1,6 +1,7 @@
 let nat_of_int = Nat.nat_of_int
 module Bn = Cryptokit.Bn
 module RSA = Cryptokit.RSA
+type nat = Nat.nat
 
 exception Error of string
 
@@ -74,11 +75,16 @@ let mod_mult_power v g m ~n =
 let mod_mult_powers v gs ms ~n =
   List.fold_left2 (mod_mult_power ~n) (Bn.copy v) gs ms
 
+let mod_powers v pairs ~n =
+  List.fold_left (fun v (g,m) -> mod_mult_power v g m ~n) (Bn.copy v) pairs
+
 let shift_left_nat n shift =
   let open Big_int in
   let i = big_int_of_nat n in
   let i = shift_left_big_int i shift in
   nat_of_big_int i
+
+let power_of_two n : nat = shift_left_nat Bn.one n
 
 let extract_nat n offset len =
   let open Big_int in
@@ -86,7 +92,7 @@ let extract_nat n offset len =
   let i = extract_big_int i offset len in
   nat_of_big_int i
 
-let random_nat_in' ?rng min max : unit -> Nat.nat =
+let random_nat_in' ?rng min max : unit -> nat =
   let cmp = Bn.compare min max in
   if cmp > 0 then invalid_arg "random_nat";
   if cmp = 0 then fun () -> Bn.copy min else
@@ -96,7 +102,7 @@ let random_nat_in' ?rng min max : unit -> Nat.nat =
   let n' = Bn.random_nat ?rng nbits in
   Bn.add min (Bn.mod_ n' k)
 
-let random_prime_in' ?rng ?kind min max : unit -> Nat.nat =
+let random_prime_in' ?rng ?kind min max : unit -> nat =
   let random_nat = random_nat_in' ?rng min max in
   let rec loop () =
     let p = random_nat() in
@@ -194,11 +200,11 @@ module Rsa = struct
 
   type modulus =
     { size: int;
-      n: Nat.nat;
-      p: Nat.nat; q: Nat.nat;
-      p': Nat.nat;
-      q': Nat.nat;
-      p'q': Nat.nat }
+      n: nat;
+      p: nat; q: nat;
+      p': nat;
+      q': nat;
+      p'q': nat }
 
 let new_special ?rng ?modulus numbits =
   match modulus with
