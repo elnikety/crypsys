@@ -84,4 +84,6 @@ const unsigned rogue_security_bits = 208;
 const unsigned halfkeyBits = 104;
 const unsigned rsa_modulus_bits = 2048;
 const unsigned distribution_bits = 80;
+const unsigned prime_total_bits = 368;
+const unsigned prime_random_bits = 120;
 #endif

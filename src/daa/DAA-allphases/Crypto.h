@@ -21,6 +21,10 @@ typedef BigInt Hash;
 
 Hash getSha1Hash();
 void addBytes(Hash*, char*);
+/*
+sends the bytes of [n] to [h] in big-endian
+order. */
+void addBI(Hash* h, BigInt n);
 char* hashResult(Hash);
 
 #endif

@@ -154,3 +154,64 @@ ProofNonce prove(State state, BigInt n_i)
   pn.n_h = state.n_h;
   return pn;
 }
+
+BigInt computeA(PublicKey pub, BigInt bigu, BigInt vDoublePrime, BigInt power)
+{
+  BigInt z,s,n,denom,base,xy,r;
+  z = pub.z; s = pub.s; n = pub.n;
+  xy = BImul(bigu, BImodPower(s,vDoublePrime,n));
+  denom = BImod(xy,n);
+  xy = BImul(z, BImodInv(denom,n));
+  base = BImod(xy,n);
+  r = BImodPower(base,power,n);
+  return r;
+}
+
+void hashInputs(char* hashRes, PublicKey pub, BigInt bigu, BigInt n_h, BigInt vDoublePrime, BigInt biga, BigInt bigaPrime)
+{
+  BigInt z,s,n;
+  Hash sha1hash;
+  z = pub.z;s = pub.s;n = pub.n;
+  sha1hash = getSha1Hash();
+  addBI(&sha1hash,n); addBI(&sha1hash,z); addBI(&sha1hash,s); addBI(&sha1hash,bigu);
+  addBI(&sha1hash,vDoublePrime); addBI(&sha1hash,biga); addBI(&sha1hash,bigaPrime);
+  addBI(&sha1hash,n_h);
+  strcpy(hashRes,hashResult(sha1hash));
+}
+
+//checker for issuers proof
+Secret check(State state, PFIssuer proof, Cert cert, BigInt vDoublePrime)
+{
+  PublicKey pub;
+  Secret secret;
+  BigInt f0,f1,vPrime,bigu,u,n_h,n,s_e,biga,e,minPrime,maxPrime,biOne,cPrimeNat,x,y,xy,bigahat,v;
+  char cPrime[MAX_CHAR_ARRAY_LENGTH], error[MAX_CHAR_ARRAY_LENGTH], c[MAX_CHAR_ARRAY_LENGTH];
+  pub = state.group; f0 = state.f0; f1 = state.f1; vPrime = state.vPrime; bigu = state.u;
+  n_h = state.n_h;
+  n = pub.n;
+  strcpy(cPrime,proof.cPrime); s_e = proof.s_e;
+  biga = cert.biga; e = cert.e;
+  minPrime = BIshiftLeft(biOne,(prime_total_bits-1));
+  maxPrime = BIadd(minPrime,BIshiftLeft(biOne,(prime_random_bits-1)));
+  if(BIcompare(e,minPrime) < 0 || BIcompare(e, maxPrime) > 0){
+    strcpy(error,"e out of range");
+    Abort(error);
+  }
+  if(!BIisProbablyPrime(e)){
+    strcpy(error,"e is not a prime");
+    Abort(error);
+  }
+  cPrimeNat = BIStringtoNumber(cPrime);
+  x = BImodPower(biga, cPrimeNat, n);
+  y = computeA(pub,bigu,vDoublePrime,s_e);
+  xy = BImul(x,y);
+  bigahat = BImod(xy,n);
+  hashInputs(c,pub,bigu,n_h,vDoublePrime,biga,bigahat);
+  if(strcmp(c,cPrime)!=0){
+    strcpy(error,"Hashes dont match");
+    Abort(error);
+  }
+  v = BIadd(vDoublePrime,vPrime);
+  secret.f = f0; secret.s = f1; secret.t = v;
+  return secret;
+}

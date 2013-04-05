@@ -34,6 +34,8 @@ typedef struct TripleBI{
   BigInt t;
 }TripleBI;
 
+typedef TripleBI Secret;
+
 typedef struct PF{
   char str[MAX_CHAR_ARRAY_LENGTH];
   BigInt n1;
@@ -45,6 +47,14 @@ typedef struct ProofNonce{
   BigInt n_h;
 } ProofNonce;
 
+typedef struct PFIssuer{
+  char* cPrime;
+  BigInt s_e;
+}PFIssuer;
 
+typedef struct Cert{
+  BigInt biga;
+  BigInt e;
+}Cert;
 
 #endif
