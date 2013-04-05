@@ -1,4 +1,5 @@
 let error = Util.error
+let power_of_two = Util.Numutil.power_of_two
 module Bn = Cryptokit.Bn
 module Hashutil = Util.Hashutil
 module Listutil = Util.Listutil
@@ -9,8 +10,6 @@ type nat = Nat.nat
 type cert = { biga: nat; e: nat }
 type secret = { f0: nat; f1: nat; v: nat }
 
-let power_of_two (k:int) : nat = Numutil.shift_left_nat Bn.one k
-
 let hash_string (s:string) : string =
   let hash = P.new_hash() in
   Cryptokit.hash_string hash s
@@ -18,9 +17,7 @@ let hash_string (s:string) : string =
 (** R₀^{f₀} R₁^{f₁} S^{v'} mod n *)
 let blind ~group ~f0 ~f1 ~v' : nat =
   let open Group in let {r0; r1; s; n} = group in
-  let bases = [r0; r1; s] in
-  let powers = [f0; f1; v'] in
-  Numutil.mod_mult_powers Bn.one bases powers ~n
+  Numutil.mod_powers Bn.one [r0,f0; r1,f1; s,v'] ~n
 
 module Join = struct
 
