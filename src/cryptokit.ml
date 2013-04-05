@@ -1639,7 +1639,7 @@ let safe_divisible_by_small_prime =
 let sg_of_safe p =
   let q = sub p one in
   let ln = num_digits q in
-  let tmp = create_nat 1 in
+  let tmp = create_nat 2 in
   let () = shift_right_nat q 0 ln tmp 0 1 in
   wipe_nat tmp; q
 
