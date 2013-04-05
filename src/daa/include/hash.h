@@ -17,4 +17,9 @@ keyHash(BigInt *rho, char *daaSeed, char *pkPrimeHash, unsigned *cnt, char *hash
 void
 hashString(char *cont, int len, char *hash);
 
+void
+getSha1Hash(char *hash, len);
+
+void
+addBytes(char *, char *);
 #endif

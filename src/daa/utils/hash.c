@@ -20,3 +20,14 @@ hashString(char *cont, int len, char *hash)
 	//TODO
 }
 
+void
+getSha1Hash(char *hash, len)
+{
+	//TODO
+}
+
+void
+addBytes(char *hash, char *bytes)
+{
+	//TODO
+}

@@ -40,7 +40,13 @@ int
 BIdivides(BigInt *a, BigInt *b);
 
 int
+BIinv(BigInt *a, BigInt *n, BigInt *res);
+
+int
 setBI(BigInt *n, int value);
+
+int
+setBI_char(char *str, BigInt *n);
 
 //returns the number of bits in n
 unsigned int

@@ -249,6 +249,12 @@ BIdivides(BigInt *a, BigInt *b)
 }
 
 int
+BIinv(BigInt *a, BigInt *n, BigInt *res)
+{
+	//TODO
+}
+
+int
 setBI(BigInt *n, int value)
 {
 	bi_t nbi;
@@ -264,6 +270,12 @@ setBI(BigInt *n, int value)
 
 	bi_free(nbi);
 	return 0;
+}
+
+int
+setBI_char(char *str, BigInt *n)
+{
+	//TODO
 }
 
 unsigned int
