@@ -68,4 +68,7 @@ lengthBIL(BigIntList*);
 unsigned int
 lengthBILL(BigIntListList*);
 
+unsigned int
+get_count();
+
 #endif

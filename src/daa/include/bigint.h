@@ -63,4 +63,8 @@ get_rnd_prime_range(BigInt *p, BigInt *min, BigInt *max);
 int
 BIshiftLeft(BigInt *n, int shift, BigInt *res);
 
+int
+BIparse_and_partition(char *hash, int hash_len,
+		BigInt *f, BigInt *f0, BigInt *f1, int half_key_bits);
+
 #endif
