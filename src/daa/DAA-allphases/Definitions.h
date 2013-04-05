@@ -86,4 +86,5 @@ const unsigned rsa_modulus_bits = 2048;
 const unsigned distribution_bits = 80;
 const unsigned prime_total_bits = 368;
 const unsigned prime_random_bits = 120;
+const unsigned random_bits = 2536;
 #endif

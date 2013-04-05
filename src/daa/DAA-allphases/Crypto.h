@@ -25,6 +25,7 @@ void addBytes(Hash*, char*);
 sends the bytes of [n] to [h] in big-endian
 order. */
 void addBI(Hash* h, BigInt n);
+void addByte(Hash* h, unsigned n);
 char* hashResult(Hash);
 
 #endif

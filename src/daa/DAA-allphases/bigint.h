@@ -26,12 +26,13 @@ sub(BigInt* a, BigInt* b, BigInt* res);
 
 BigInt BIpower(BigInt,BigInt);
 BigInt BIdivide(BigInt,BigInt);
-BigInt BImod(BigInt,BigInt);
 BigInt BIadd(BigInt,BigInt);
 BigInt BImul(BigInt,BigInt);
+BigInt BImod(BigInt,BigInt);
 BigInt BImodInv(BigInt a,BigInt n); // Computes the inverse of a mod n
+BigInt BImodMult(BigInt a, BigInt b, BigInt n); //computes ab mod n
+BigInt BImodPower(BigInt a,BigInt b,BigInt n); //computes a^b mod n
 unsigned BIcompare(BigInt f,BigInt s); // returns f - s
-BigInt BImodPower(BigInt,BigInt,BigInt);
 unsigned BIdivides(BigInt,BigInt);
 BigInt BIsub(BigInt,BigInt);
 unsigned BIisProbablyPrime(BigInt);
