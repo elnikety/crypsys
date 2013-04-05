@@ -97,6 +97,10 @@ let check_key {biggamma; rho; gamma} =
   if Bn.compare v Bn.one != 0
   then error "γ bad"
 
+let valid (key:key) (v:Nat.nat) : bool =
+  let { rho; biggamma } = key in
+  Bn.compare Bn.one (Bn.mod_power v rho biggamma) == 0
+
 let hash_name (name:string) : Nat.nat =
   let hash = Parm.new_rogue_hash() in
   hash#add_byte 1;

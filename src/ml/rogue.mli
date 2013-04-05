@@ -84,6 +84,13 @@ val check_key: key -> unit
 	If not, raise Error.
 *)
 
+val valid: key -> Nat.nat -> bool
+(**
+	[valid key v] returns true if [v ∈ <γ>]; that is, if [1 ≡ v^ρ
+	(mod Γ)]. Values obtained using [key] with Rogue.base and
+	Rogue.tag are valid provided [key] is well-formed.)
+*)
+
 val base: ?rng: Cryptokit.Random.rng -> ?bsn: string -> key -> Nat.nat
 (**
 	If the optional [bsn] is provided, then compute
