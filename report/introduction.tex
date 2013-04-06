@@ -1,5 +1,6 @@
 \section{Introduction}
 
+\if 0
 \begin{comment}
 	\emph{PDS:}
 	Our goal is to motivate and sketch out our work.
@@ -21,8 +22,9 @@
 	attestation. What other protocols does it enable?
 	Voting protocols?
 \end{comment}
+\fi
 
-We will implement Direct Anonymous Attestation on top of
+We implement Direct Anonymous Attestation (DAA) on top of
 a member of the IBM~4758 family of
 cryptographic coprocessors.
 
@@ -61,12 +63,12 @@ In our scenario, for example, if remote attestation reveals a TPM's identity, th
 online companies might misuse that information to track a user and profile
 her preferences.
 
-The Direct Anonymous Attestation protocol~(DAA) authenticates a TPM
+The DAA authenticates a TPM
 while offering anonymity guarantees.
 DAA performs the necessary authentication \emph{without} revealing the TPM's identity,
-sending $S$ a zero-knowledge proof instead.
+sending $S$ a zero-knowledge proof instead. \dchk{Similarly, DAA can be used to authenticate a machine that uses a configuration out of a set of trusted configurations without revealing the signature of that configuration. This is useful when the configuration conveys too much information and, thus, could be used as an identifier.}
 
-In this project, we will adapt DAA to work with an IBM secure coprocessor
+In this project, we adapt DAA to work with an IBM secure coprocessor
 rather than a TPM.
 Such coprocessors serve as dedicated machines, 
 designed to run arbitrary application-specific
@@ -81,8 +83,15 @@ Keys and other sensitive data stored in an IBM coprocessor's battery-backed RAM
 are automatically `zeroized' when such attacks are detected.
 To our knowledge, no TPM has been so verified.
 
+The contributions of this project to the trusted computing community are two fold:
+
+(1) Provide cryptocard-specific DAA implementation -- to the best of our knowledge, there is no out-of-the-box implementation. This should enable trusted computing systems to harness the numerous hardware features provided by cryptocards to deliver richer systems. As we discuss in Section~\ref{sec:impl}, we provide implementations in ML and C.
+
+(2) Less complex implementation;  due to the hardware limitations of the TPM, traditional DAA implementations offload expensive computations to the relatively more powerful processor of the host machine. However, results of offloaded computations have to be verified by the TPM chip since the host is not trusted. In our model, all DAA-prover-side computations are done within the cryptocard.
+
+\if 0
 We expect this project to challenge us.
-We will describe our adpated DAA protocol and implement it.
+We will describe our adapted DAA protocol and implement it.
 Time permitting, we will prove its security properties.
 Our implementation may or may not involve instrumenting (some subset of)
 a BIOS, a bootloader, and an OS to take appropriate \emph{code measurements} for attestation;
@@ -104,3 +113,4 @@ to offload any computations to the host.
 	\item We have a *working* implementation in C for the cryptocard
 	\end{itemize}
 \end{comment}
+\fi
