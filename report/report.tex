@@ -4,6 +4,9 @@
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
 \usepackage{microtype}
+\usepackage{amsmath}	% may need amsfonts, amssymbb
+\usepackage{amsfonts}	% for \mathbb
+\usepackage{amscd}	% protocol diagrams
 
 \def\TITLE{Direct Anonymous Attestation on a Secure Coprocessor}
 
@@ -28,6 +31,9 @@
 \newenvironment{comment}%
   {\begin{snugshade}\begin{quote}}
   {\hfill\end{quote}\end{snugshade}}
+
+\newcommand{\eg}{\textit{e.g.}}
+\newcommand{\ie}{\textit{i.e.}}
 
 \title{\TITLE \\
 	{\small\textsc{Experience Report}}%

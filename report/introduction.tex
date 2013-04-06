@@ -2,6 +2,105 @@
 
 \begin{comment}
 	\emph{PDS:}
-	Introduction along the lines of the proposal.
-	Motivation and sketch.
+	Our goal is to motivate and sketch out our work.
+	
+	At the moment, I've simply dropped in a copy of our proposal.
+	Even if those ideas suffice, we clearly need to adjust the text since
+	we're now talking about what we have done rather
+	than what we propose to do.
+	
+	Let's consider improving the ideas.
+	
+	I want to move away from
+	TCG-style attestation to the more general problem of
+	\emph{authenticating a remote application}.
+	Identifying
+	all of the software running on a machine may well uniquely
+	identify the machine.
+	Authentication without inherently leaking identity enables
+	attestation. What other protocols does it enable?
+	Voting protocols?
+\end{comment}
+
+We will implement Direct Anonymous Attestation on top of
+a member of the IBM~4758 family of
+cryptographic coprocessors.
+
+Attestation is a core concept in so-called trusted computing.
+It enables trust decisions based on the identity of a machine
+and its software stack.
+Why identity?
+Consider the following scenario.
+Suppose server $S$ houses content $C$ and wants to
+only ever release $C$ to a trusted application $A$;
+for example, $S$ might supply music online,
+$C$ might comprise songs,
+and $A$ might be a trusted application that
+lets its users listen to---but not copy---their purchases.
+Certainly, $S$ would employ cryptographic protocols to protect
+its content during download, but what about \emph{after} download?
+How does $S$ ensure it's really talking to $A$? Moreover, how does
+it ensure that no other software running alongside $A$ makes an illicit
+copy of $C$?
+Attestation attempts to mitigate such concerns; for example,
+prior to sending $C$, the server $S$ might identify all of the
+software running alongside $A$ to ensure that only ``trustworthy'' programs
+are running.
+
+As this scenario suggests, we are concerned with \emph{remote} attestation.
+Remote attestation involves authenticating a trusted component (e.g., a trusted platform module~(TPM))
+on a remote machine prior to running an attestation protocol
+with it.
+Authentication matters: $S$ would like to know that when it performs a remote attestation,
+its peer is \emph{honest}.
+By communicating with a TPM, $S$ avoids trusting
+the rest of a user's machine.
+But authentication poses a problem: A TPM's identity serves as
+\emph{personally identifying information.}
+In our scenario, for example, if remote attestation reveals a TPM's identity, then
+online companies might misuse that information to track a user and profile
+her preferences.
+
+The Direct Anonymous Attestation protocol~(DAA) authenticates a TPM
+while offering anonymity guarantees.
+DAA performs the necessary authentication \emph{without} revealing the TPM's identity,
+sending $S$ a zero-knowledge proof instead.
+
+In this project, we will adapt DAA to work with an IBM secure coprocessor
+rather than a TPM.
+Such coprocessors serve as dedicated machines, 
+designed to run arbitrary application-specific
+code in a controlled, secure environment.
+The TPM specification takes a far less
+interesting and (in the long-term) less maintainable approach to
+secure coprocessing: One size fits all.
+More important, the IBM coprocessors have been verified to FIPS~140-1 Level~4.
+Among other things, this means they offer laboratory-tested physical security against
+environmental attacks.
+Keys and other sensitive data stored in an IBM coprocessor's battery-backed RAM
+are automatically `zeroized' when such attacks are detected.
+To our knowledge, no TPM has been so verified.
+
+We expect this project to challenge us.
+We will describe our adpated DAA protocol and implement it.
+Time permitting, we will prove its security properties.
+Our implementation may or may not involve instrumenting (some subset of)
+a BIOS, a bootloader, and an OS to take appropriate \emph{code measurements} for attestation;
+if not, we will provide a well-documented API so that others,
+more familiar with a particular system, can do so.
+
+\begin{comment}
+	\emph{PDS and EE:}
+	These are the contributions we hoped for a few days ago.
+
+	They should be the points covered by our draft---not the story though.
+	\begin{itemize}
+	\item What can a cryptocard, compared to TPM, add to the picture?
+	\item Why DAA is useful?
+	\item There is no out-of-the-box DAA implementation for cryptocards.
+	\item Cryptocard-specific DAA eases the implementation since we don't have
+to offload any computations to the host.
+	\item We have a *working* implementation in ML
+	\item We have a *working* implementation in C for the cryptocard
+	\end{itemize}
 \end{comment}

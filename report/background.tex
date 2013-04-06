@@ -1,5 +1,9 @@
 \section{Background}
 
+\newcommand{\QR}{\mathrm{QR}}
+\newcommand{\defeq}{\mathrel{:=}}
+\newcommand{\iseq}{\mathrel{\overset{\mathrm{?}}{=}}}
+
 \begin{comment}
 	\emph{PDS:}
 	DAA as a combination of building blocks.
@@ -7,4 +11,264 @@
 	Hilight all the stuff you need to understand in order to understand DAA with words and no math formulae.
 \end{comment}
 
+We offer an informal account of the building blocks used by DAA.
+DAA comprises a group signature scheme paired with a rogue tagging scheme, using \emph{efficient} zero-knowledge proofs to achieve anonymity.
 
+The group signature scheme supports group creation,
+the ability for a group's creator to add a member to the group,
+and the ability for a group member to prove membership to a third party.
+The group of interest is ``the set of Cryptocards that have proved
+their identity to a DAA Issuer''.
+
+The rogue tagging scheme defines pseudonyms for cryptocards and offers
+a limited form of linkability.
+The goal is to permit an issuer or verifier to apply heuristics to detect ``rogue'' cryptocards
+and add such cryptocards to a blacklist.
+
+DAA's zero-knowledge proofs ensure that all identifying information
+about a cryptocard rests in the rogue tags it supplies to its protocol peers.
+DAA's need for both computational and communication efficiency should be clear:
+Devices with limited resources communicate remotely to participate in DAA.
+Thus, a constraint: One may design DAA-like protocols around any group
+signature and rogue tagging scheme for which one can define suitably efficient
+proof protocols.
+
+\subsection{Group signature scheme}
+
+The Camenisch and Lysyanskaya signature scheme~(CL)
+involves three operations built up over the group $\QR_n$
+of quadratic residues for a special RSA modulus $n$:
+\begin{itemize}
+
+\item \textbf{Setup:} To create a new CL key,
+one picks a special RSA modulus $n$, one of its prime
+factors $p$,
+and members $a_1$, \ldots, $a_L$, $b$, and $c$ of $\QR_n$
+where $L$ is a parameter.
+All but $p$ are public.
+
+\item \textbf{Sign:}
+A signature for a block of messages $m_1$, \ldots, $m_L$
+and a key as above comprises a random prime $e$, a random $s$, and a
+value $v$ satisfying
+\begin{equation}\label{cl/signat}
+	v^e \equiv a_1^{m_1} \cdots a_L^{m_L} b^s \pmod n.
+\end{equation}
+
+\item \textbf{Verify:}
+To verify a signature $(e, s, v)$ over a message block $m_1$, \ldots, $m_L$,
+one need only compute both sides of \eqref{cl/signat} and check for equality:
+$$	
+	v^e \bmod n \iseq a_1^{m_1} \cdots a_L^{m_L} b^s \bmod n.
+$$
+\end{itemize}
+A signer---knowing the secret $p$ and thus how to factor $n$---can
+easily compute $v$ satisfying \eqref{cl/signat}
+whereas any algorithm to forge such a signature
+reduces to an algorithm to solve the flexible RSA problem.
+
+For important restrictions (\ie, parameters
+governing the lengths of $n$, the $m_i$, $e$, and
+$s$) and a proof of unforgeability by reduction to the flexible RSA problem, please
+see [cl].
+
+\subsection{Rogue tagging scheme}
+
+To our knowledge, [Brickell et al., 2004] introduced DAA's rogue tagging scheme.
+That's rather unfortunate for an outsider attempting to understand the scheme in isolation:
+The rogue tagging scheme and its security properties are only implicitly defined as a part of the larger (and much more complicated) DAA protocol.
+
+During setup, an issuer picks a group $G$ such that the discrete
+logarithm problem in $G$ has about the same difficulty as
+factoring DAA RSA moduli.
+Many issuers and verifiers can share the same rogue-tagging
+group. DAA assigns distinct tags to issuers/verifiers via
+so-called basenames. As far as the protocol is concerned,
+basenames are uninterpreted bit strings; see \S\/6.2 in [Smyth et
+al., 2012] for a critique and practical advice.
+
+While running the join protocol with an issuer or the signing
+protocol with a verifier that supplies its basename, a
+cryptocard computes a base $\zeta \in G$ from its peer's name and
+commits to the rogue tag $N = \zeta^f$, where $f$ is the cryptocard's
+secret key for use in DAA signatures. (When signing with a
+verifier that does not supply a basename, the cryptocard picks
+a random $\zeta \in G$.)
+
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Zstar}[1]{\Z^{\star}_{#1}}
+\newcommand{\gen}[1]{\langle{#1}\rangle}
+
+\medskip
+
+DAA's rogue tagging key comprises primes $\Gamma$ and $\rho$ and a member $\gamma$
+of the multiplicative group mod $\Gamma$ such that $\gen\gamma$ is a subgroup of order $\rho$ and $\rho$ is a
+large prime factor of $\Gamma - 1$.
+All of $\Gamma$, $\rho$, and $\gamma$ are public.
+
+There are at least two important points to make regarding the length of $\rho$:
+\begin{itemize}
+
+\item It's the maximum bit length of cryptocard secrets $f$.
+
+\item It must be chosen large enough to make it difficult to
+compute discrete logarithms in $\gen\gamma$; see the discussion around
+Algorithm 4.84, ``Selecting a $k$-bit prime $p$ and a generator $\alpha$
+of $\Zstar p$'' in [Menezes et al., 1996].
+
+\end{itemize}
+
+We offer no “check if this tag is a rogue” heuristic. In
+theory, issuers and verifiers use tags to track legitimate
+users (pseudonymously) and to identify rogues. We offer tags,
+but no heuristics. Each issuer/verifier must settle on a
+policy. (The DAA paper suggests that when talking to a
+platform with tag $N$, a verifier checks $N$ and any earlier $N'$
+used by that platform against a blacklist. If found, the
+verifier should abort the protocol.)
+
+\subsection{Zero-knowledge proofs}
+
+\begin{comment}
+	\emph{PDS:}
+	Security property:  Unforgeability (by reduction to the
+	flexible RSA problem).
+
+	Alleged security properties: Satistical witness
+	indistinguishable and soundness (by reduction to the flexible
+	RSA problem in the random oracle model).
+\end{comment}
+
+The DAA protocol is interesting, in part, because it is a practical
+and widely-deployed protocol that heavily relies on zero-knowledge
+proofs of knowledge.
+We introduce such proofs using an extended example: The
+proof of knowledge of a discrete logarithms modulo a
+composite.\footnote{%
+	This is a special case of one of the zero-knowledge proofs used in DAA;
+	see Appendix~A in the full version of the DAA paper.}
+
+\subsubsection{The discrete log problem}
+
+\newcommand{\ciff}{\mathrel{\phantom{\iff}}}
+
+Let the group $G$ and $g$, $h \in G$ be given.
+Suppose a prover $P$ and
+verifier $V$ agree on these and $P$ wants to convince $V$ that
+\begin{align*}
+\exists \alpha.\, \alpha = \log_h g &\iff \exists \alpha.\, h^\alpha = g \\
+	&\iff g \in \gen h.
+\end{align*}
+without revealing the witness $\alpha$.
+
+\subsubsection{Making the verifier happy: Basic protocol}
+
+\newcommand{\sset}[1]{\left\{#1\right\}}
+
+Consider the following protocol. It has the form ``commit,
+challenge, response'' (a so-called $\Sigma$-protocol).
+\[
+	\minCDarrowwidth200pt
+	\begin{CD}
+	P	@>{\displaystyle t \defeq h^r	\quad\text{for $r \ge 1$ fresh}}>>	V \\
+	P	@<{\displaystyle b	\quad\text{for $b \in \sset{0, 1}$ fresh}}<<	V \\
+	P	@>{\displaystyle s \defeq r - b\alpha}>>	V
+	\end{CD}
+\]
+After running the protocol, the verifier knows $t$, $b$, and $s$
+and so can check
+$$
+	t \iseq g^b h^s.
+$$
+From the verifier's perspective, the protocol is great. The
+point:
+\begin{align*}
+	t = g^b h^s &\iff h^r = g^b h^{r - b\alpha} \\
+	&\iff r = b \log_h g + r - b\alpha \\
+	&\iff b\alpha = b \log_h g \\
+	&\iff b = 0 \lor (b = 1 \land \alpha = \log_h g).
+\end{align*}
+Thus a prover cannot answer both challenges $b = 0$ and $b = 1$
+correctly without knowing $\log_h g$. Intuitively, the protocol
+satisfies \emph{soundness}: If a (potentially adversarial) prover
+survives $k$ runs of the protocol, then with probability $2^{-k}$,
+the prover knows $\log_h g$.
+
+\subsubsection{Making the prover happy: An RSA group}
+
+Here's another intuition: A $\Sigma$-protocol satisfies \emph{witness
+indistinguishability} if there exists a simulator for the
+prover such that (a) the simulator doesn't know the prover's
+secrets and yet (b) the distribution of ``conversations''
+between the verifier and the prover matches the distribution
+of conversations between the verifier and the simulator.
+
+If we could restrict our parameters $G$, $g$, and $h$ in order to
+deny a (potentially adversarial) verifier any ``computational
+back doors'' to the prover's secret $\alpha$, then we might attempt to
+prove our protocol satisfies witness
+indistinguishability.
+
+\newcommand{\size}[1]{\lvert{#1}\rvert}
+We restrict our parameters as follows.
+Let $n$ be a special RSA modulus so that
+there exist primes $p$, $p'$, $q$, and $q'$ satisfying
+$n = pq$, $p = 2p' + 1$, $q = 2q' + 1$, and $q \not= p$.
+Let $G$ be the multiplicative group mod $n$
+and $h$ a random generator of the group of quadratic
+residues mod $n$.
+Thus, $\size{\QR_n} = p'q'$. Our protocol specializes to
+\[
+	\minCDarrowwidth200pt
+	\begin{CD}
+	P	@>{\displaystyle t \defeq h^r \bmod n	\quad\text{for $r \in \sset{1, \ldots, p'q'}$ fresh}}>>	V \\
+	P	@<{\displaystyle b	\quad\text{for $b \in \sset{0, 1}$ fresh}}<<	V \\
+	P	@>{\displaystyle s \defeq (r - b\alpha) \bmod p'q'}>>	V
+	\end{CD}
+\]
+where the verifier computes
+\[
+	v \defeq g^b h^s \bmod n
+\]
+and checks
+\[
+	t \iseq v.
+\]
+
+Now our imaginary proofs can argue that no such ``computational
+back doors'' exists by reduction to the strong RSA assumption.
+
+\subsubsection{Making the protocol practical: Avoiding communication}
+
+We apply the so-called Fiat-Shamir heuristic to avoid
+communication between the prover and the verifier.
+The idea is to use a hash function as a source of challenge bits.
+
+Let a hash function $H$ with output length $\ell_H$ be given.
+The prover picks $\ell_H$ random values; computes the corresponding
+commitments $t_1$, \ldots, $t_{\ell_H}$;
+hits the common inputs and the commitments with $H$;
+then computes $\ell_H$ responses using bits from
+the hash as challenges. In practical terms, the prover hopes
+that no adversary can defeat $H$ to discover
+computational back doors to $\alpha$. Now our imaginary proofs must
+make the random oracle assumption, in addition to the strong
+RSA assumption.
+
+One final wrinkle: We lift the basic protocol to a list of
+logarithms with distinct bases (that share a common generator
+$\gen h = \QR_n$). The resulting scheme matches that used in the DAA
+paper's Appendix A.
+
+\subsubsection{On efficiency}
+
+\begin{comment}
+	\emph{PDS:}
+	Explain that we described the only ``cut and choose'' protocol
+	used in DAA. All the other zero-knowledge proofs enjoy
+	efficient protocols. Like the preceding protocol, they use
+	the Fiat-Shamir heuristic. Unlike the preceding protocol,
+	they avoid computing $\ell_H$ commitments and $\ell_H$ responses.
+	Offer pointers to the literature. Discussion is beyond the scope of this report.
+\end{comment}
