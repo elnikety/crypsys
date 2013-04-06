@@ -1,9 +1,5 @@
 \section{Background}
 
-\newcommand{\QR}{\mathrm{QR}}
-\newcommand{\defeq}{\mathrel{:=}}
-\newcommand{\iseq}{\mathrel{\overset{\mathrm{?}}{=}}}
-
 \begin{comment}
 	\emph{PDS:}
 	DAA as a combination of building blocks.
@@ -12,28 +8,21 @@
 \end{comment}
 
 We offer an informal account of the building blocks used by DAA.
-DAA comprises a group signature scheme paired with a rogue tagging scheme, using \emph{efficient} zero-knowledge proofs to achieve anonymity.
+DAA comprises a group signature scheme~(\secref{cl}) paired with a rogue tagging scheme~(\secref{rogue}, using \emph{efficient} zero-knowledge proofs to achieve anonymity~(\secref{zkp}).
 
-The group signature scheme supports group creation,
-the ability for a group's creator to add a member to the group,
-and the ability for a group member to prove membership to a third party.
-The group of interest is ``the set of Cryptocards that have proved
-their identity to a DAA Issuer''.
-
-The rogue tagging scheme defines pseudonyms for cryptocards and offers
-a limited form of linkability.
-The goal is to permit an issuer or verifier to apply heuristics to detect ``rogue'' cryptocards
-and add such cryptocards to a blacklist.
-
-DAA's zero-knowledge proofs ensure that all identifying information
-about a cryptocard rests in the rogue tags it supplies to its protocol peers.
 DAA's need for both computational and communication efficiency should be clear:
 Devices with limited resources communicate remotely to participate in DAA.
 Thus, a constraint: One may design DAA-like protocols around any group
 signature and rogue tagging scheme for which one can define suitably efficient
 proof protocols.
 
-\subsection{Group signature scheme}
+\subsection{Group signature scheme}\seclabel{cl}
+
+The group signature scheme supports group creation,
+the ability for a group's creator to add a member to the group,
+and the ability for a group member to prove membership to a third party.
+The group of interest is ``the set of Cryptocards that have proved
+their identity to a DAA Issuer''.
 
 The Camenisch and Lysyanskaya signature scheme~(CL)
 involves three operations built up over the group $\QR_n$
@@ -72,7 +61,12 @@ governing the lengths of $n$, the $m_i$, $e$, and
 $s$) and a proof of unforgeability by reduction to the flexible RSA problem, please
 see [cl].
 
-\subsection{Rogue tagging scheme}
+\subsection{Rogue tagging scheme}\seclabel{rogue}
+
+The rogue tagging scheme defines pseudonyms for cryptocards and offers
+a limited form of linkability.
+The goal is to permit an issuer or verifier to apply heuristics to detect ``rogue'' cryptocards
+and add such cryptocards to a blacklist.
 
 To our knowledge, [Brickell et al., 2004] introduced DAA's rogue tagging scheme.
 That's rather unfortunate for an outsider attempting to understand the scheme in isolation:
@@ -90,15 +84,10 @@ al., 2012] for a critique and practical advice.
 While running the join protocol with an issuer or the signing
 protocol with a verifier that supplies its basename, a
 cryptocard computes a base $\zeta \in G$ from its peer's name and
-commits to the rogue tag $N = \zeta^f$, where $f$ is the cryptocard's
+commits to the rogue tag $N \defeq \zeta^f$, where $f$ is the cryptocard's
 secret key for use in DAA signatures. (When signing with a
 verifier that does not supply a basename, the cryptocard picks
 a random $\zeta \in G$.)
-
-\newcommand{\Z}{\mathbb{Z}}
-\newcommand{\N}{\mathbb{N}}
-\newcommand{\Zstar}[1]{\Z^{\star}_{#1}}
-\newcommand{\gen}[1]{\langle{#1}\rangle}
 
 \medskip
 
@@ -128,7 +117,7 @@ platform with tag $N$, a verifier checks $N$ and any earlier $N'$
 used by that platform against a blacklist. If found, the
 verifier should abort the protocol.)
 
-\subsection{Zero-knowledge proofs}
+\subsection{Zero-knowledge proofs}\seclabel{zkp}
 
 \begin{comment}
 	\emph{PDS:}
@@ -139,6 +128,9 @@ verifier should abort the protocol.)
 	indistinguishable and soundness (by reduction to the flexible
 	RSA problem in the random oracle model).
 \end{comment}
+
+DAA's zero-knowledge proofs ensure that all identifying information
+about a cryptocard rests in the rogue tags it supplies to its protocol peers.
 
 The DAA protocol is interesting, in part, because it is a practical
 and widely-deployed protocol that heavily relies on zero-knowledge
@@ -151,8 +143,6 @@ composite.\footnote{%
 
 \subsubsection{The discrete log problem}
 
-\newcommand{\ciff}{\mathrel{\phantom{\iff}}}
-
 Let the group $G$ and $g$, $h \in G$ be given.
 Suppose a prover $P$ and
 verifier $V$ agree on these and $P$ wants to convince $V$ that
@@ -163,8 +153,6 @@ verifier $V$ agree on these and $P$ wants to convince $V$ that
 without revealing the witness $\alpha$.
 
 \subsubsection{Making the verifier happy: Basic protocol}
-
-\newcommand{\sset}[1]{\left\{#1\right\}}
 
 Consider the following protocol. It has the form ``commit,
 challenge, response'' (a so-called $\Sigma$-protocol).
@@ -210,7 +198,6 @@ back doors'' to the prover's secret $\alpha$, then we might attempt to
 prove our protocol satisfies witness
 indistinguishability.
 
-\newcommand{\size}[1]{\lvert{#1}\rvert}
 We restrict our parameters as follows.
 Let $n$ be a special RSA modulus so that
 there exist primes $p$, $p'$, $q$, and $q'$ satisfying
@@ -241,7 +228,7 @@ back doors'' exists by reduction to the strong RSA assumption.
 
 \subsubsection{Making the protocol practical: Avoiding communication}
 
-We apply the so-called Fiat-Shamir heuristic to avoid
+We now introduce the so-called Fiat-Shamir heuristic, used to avoid
 communication between the prover and the verifier.
 The idea is to use a hash function as a source of challenge bits.
 
@@ -255,11 +242,6 @@ that no adversary can defeat $H$ to discover
 computational back doors to $\alpha$. Now our imaginary proofs must
 make the random oracle assumption, in addition to the strong
 RSA assumption.
-
-One final wrinkle: We lift the basic protocol to a list of
-logarithms with distinct bases (that share a common generator
-$\gen h = \QR_n$). The resulting scheme matches that used in the DAA
-paper's Appendix A.
 
 \subsubsection{On efficiency}
 
