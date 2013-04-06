@@ -1,30 +1,24 @@
-\section{Background}
-
-\begin{comment}
-	\emph{PDS:}
-	DAA as a combination of building blocks.
-	Why DAA is cool.
-	Hilight all the stuff you need to understand in order to understand DAA with words and no math formulae.
-\end{comment}
+\section{Crypographic building blocks}
 
 We offer an informal account of the building blocks used by DAA.
-DAA comprises a group signature scheme~(\secref{cl}) paired with a rogue tagging scheme~(\secref{rogue}, using \emph{efficient} zero-knowledge proofs to achieve anonymity~(\secref{zkp}).
+DAA comprises a group signature scheme~(\secref{cl}) paired with a rogue tagging scheme~(\secref{rogue}), using \emph{efficient} zero-knowledge proofs to achieve anonymity~(\secref{zkp}).
 
 DAA's need for both computational and communication efficiency should be clear:
 Devices with limited resources communicate remotely to participate in DAA.
 Thus, a constraint: One may design DAA-like protocols around any group
-signature and rogue tagging scheme for which one can define suitably efficient
+signature and rogue tagging schemes for which one can define suitably efficient
 proof protocols.
 
 \subsection{Group signature scheme}\seclabel{cl}
 
-The group signature scheme supports group creation,
+The Camenisch and Lysyanskaya~(CL) signature scheme
+supports group creation,
 the ability for a group's creator to add a member to the group,
 and the ability for a group member to prove membership to a third party.
-The group of interest is ``the set of Cryptocards that have proved
-their identity to a DAA Issuer''.
+The group of interest is the set of cryptocards that have proved
+their identity to a DAA issuer.
 
-The Camenisch and Lysyanskaya signature scheme~(CL)
+The CL signature scheme
 involves three operations built up over the group $\QR_n$
 of quadratic residues for a special RSA modulus $n$:
 \begin{itemize}
@@ -119,6 +113,7 @@ verifier should abort the protocol.)
 
 \subsection{Zero-knowledge proofs}\seclabel{zkp}
 
+\if 0
 \begin{comment}
 	\emph{PDS:}
 	Security property:  Unforgeability (by reduction to the
@@ -128,12 +123,13 @@ verifier should abort the protocol.)
 	indistinguishable and soundness (by reduction to the flexible
 	RSA problem in the random oracle model).
 \end{comment}
+\fi
 
 DAA's zero-knowledge proofs ensure that all identifying information
 about a cryptocard rests in the rogue tags it supplies to its protocol peers.
 
 The DAA protocol is interesting, in part, because it is a practical
-and widely-deployed protocol that heavily relies on zero-knowledge
+and widely-deployed protocol that relies heavily on zero-knowledge
 proofs of knowledge.
 We introduce such proofs using an extended example: The
 proof of knowledge of a discrete logarithms modulo a
@@ -245,12 +241,19 @@ RSA assumption.
 
 \subsubsection{On efficiency}
 
-\begin{comment}
-	\emph{PDS:}
-	Explain that we described the only ``cut and choose'' protocol
-	used in DAA. All the other zero-knowledge proofs enjoy
-	efficient protocols. Like the preceding protocol, they use
-	the Fiat-Shamir heuristic. Unlike the preceding protocol,
-	they avoid computing $\ell_H$ commitments and $\ell_H$ responses.
-	Offer pointers to the literature. Discussion is beyond the scope of this report.
-\end{comment}
+The zero-knowledge protocol discussed in the preceding sections has one
+drawback: Relying as it does on a list of $\ell_H$ commitments, it's not
+very efficient.
+
+The CL signature scheme and DAA use this inefficient protocol,
+but only to establish that long-lived parameters (\eg, the CL group
+parameters) are well-formed.
+Each protocol participant checks such parameters once, amortizing that cost.
+
+CL and DAA use many other zero-knowledge protocols to prove knowledge
+of relations among discrete logarithms (among other relations).
+These zero-knowledge protocols
+are much more efficient, presupposing that parameters have been
+checked, they ``get away with'' one commitment.
+An account of these protocols is beyond the scope of this report;
+please refer to \S\/5 in [cl] and \S\/3.2 in [daa] for references.

@@ -1,7 +1,103 @@
-\section{Protocol}
+\section{Protocol overview}
 
-\begin{comment}
-	\emph{PDS:}
-	High level of how the primitives introduced in the background interact together to provide DAA.
-	Some protocol diagrams gleaned from the ML.
-\end{comment}
+In our setting, the DAA protocol involves three participants:
+\begin{description}
+
+\item[\textbf{Issuer}]
+An issuer runs a setup procedure to establish
+parameters for itself and other participants.
+The issuer publishes these parameters along with a
+\emph{zero-knowledge proof} that the parameters
+are well-formed. (We discuss such proofs in~\secref{zkp}. Intuitively,
+they relate secret values to public values, without leaking the secrets.)
+
+Other protocol participants check an issuer's parameters
+once, amortizing that cost over all subsequent uses of those parameters.
+In the following, we presuppose that other protocol participants have
+checked an issuer's parameters.
+
+\item[\textbf{Cryptocard}]
+After mutual authentication, a cryptocard and an issuer run the \emph{join protocol}
+to create a \emph{certificate} for later use by the cryptocard.
+The certificate serves as evidence that the issuer has authenticated the cryptocard.
+
+The join protocol employs blinding factors and two zero-knowledge proofs
+to (a) prevent the issuer from learning the secret key material, $f$, used by the
+cryptocard for DAA and (b) convince the issuer that the rogue tag
+sent by the cryptocard relates to $f$.
+
+A cryptocard's \emph{rogue tag} is a value calculated from an issuer's DAA parameters,
+the cryptocard's secret $f$, and the identity of its communication peer.
+Rogue tags serve as pseudonyms that permit a limited
+form of tracking sufficient for issuers and verifiers (q.v.) to heuristically
+detect misbehaving cryptocards.
+
+\item[\textbf{Verifier}]
+A verifier and a cryptocard run the \emph{signing protocol}.
+In it, the cryptocard uses a zero-knowledge proof to convince
+the verifier that (a) a certificate over $f$ exists and thus the cryptocard
+is authentic and (b) the rogue tag sent by the cryptocard relates to $f$.
+
+\end{description}
+Brickell et al. describe a fourth protocol participant, the untrusted host
+housing a TPM.
+They do so in order to offload some computations from a resource-starved TPM
+to its host.
+As cryptocards are more powerful than TPMs, we avoid the distinction.
+In our implementation, a cryptocard performs all TPM and
+host calculations.\footnote{%
+	We did not attempt to simplify the protocol
+	by avoiding computations relevant to the Host/TPM split.}
+
+Before describing the underlying cryptographic operations,
+we offer a bird's-eye view of the join and signing protocols.
+
+\paragraph*{Join protocol}
+The join protocol presupposes that the issuer and the cryptocard
+have authenticated one another and established a secure
+channel. The issuer knows it's talking to a legitimate
+cryptocard and vice versa. Messages arriving at the card are
+authentic. The protocol proceeds as follows.
+\[
+	\minCDarrowwidth200pt
+	\begin{CD}
+	\text{Cryptocard}	@>{\displaystyle U,\, N_I}>>	\text{Issuer} \\
+	{}	@<{\displaystyle n_i}<<	{} \\
+	{}	@>{\displaystyle P,\, n_h}>>	{} \\
+	{}	@<{\displaystyle P',\, C,\, v''}<<	{}
+	\end{CD}
+\]
+The cryptocard initiates the protocol, sending a blinded
+signature request $U$ and rogue tag $N_I$.
+The request $U$ is built up from the issuer's parameters,
+the cryptocard's secret $f$, and
+a fresh blinding factor $v'$.
+Upon receiving the issuer's nonce $n_i$, the cryptocard
+sends a zero-knowledge proof $P$ that
+$U$ and $N_I$ were well-formed along with a nonce $n_h$.
+The cryptocard's proof mentions $n_i$.
+Upon verifying $P$ and confirming that $N_I$ isn't blacklisted, the
+issuer sends an unblinding factor $v''$, a certificate $C$ over
+$f$ and the quantity $v \defeq v'+v''$, and a zero-knowledge proof
+$P'$ that $C$ is well-formed.
+The issuer's proof mentions $n_i$ and $n_h$.
+
+\paragraph*{Signing protocol}
+The signing protocol is much simpler:
+\[
+	\minCDarrowwidth200pt
+	\begin{CD}
+	{}	@>{\displaystyle m,\, n_v,\, b}>>	\text{Cryptocard} \\
+	\text{Verifier}	@<{\displaystyle \sigma,\, N_V}<<	{} \\
+	\end{CD}
+\]
+The cryptocard receives a message $m$ to sign along
+with a nonce $n_v$ and
+a bit $b$ indicating whether $m$ originated with the verifier or within the cryptocard.
+Hidden inputs include the relevant issuer's parameters and an optional
+basename for the verifier.
+The cryptocard responds with its rogue tag $N_V$ for this verifier
+and a ``signature'' $\sigma$ comprising
+a zero-knowledge proof that (a) the cryptocard knows a certificate $C$
+from the issuer and (b) both $C$ and $N_V$ relate to the cryptocard's secret $f$.
+The proof mentions $m$, $n_v$, and $b$.
