@@ -1,2 +1,4 @@
 true: debug
-<*.ml> or <*.mli> or <*.native>: package(cryptokit)
+<**/*.ml> or <**/*.mli> or <**/*.native>: package(cryptokit)
+<daa> or <cmd>: include
+<cmd/*.ml> or <cmd/*.mli> or <cmd/*.native>: package(json-wheel)

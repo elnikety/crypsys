@@ -1,13 +1,14 @@
 BUILD=ocamlbuild -use-ocamlfind -quiet
 
 all:V:
-	$BUILD sign.native cl.native
+	mk cmd/setup.native
+	mk cmd/verify.native
+
+clean:V:
+	$BUILD -clean
 
 %.native:V:
 	$BUILD $target
 
 %.byte:V:
 	$BUILD $target
-
-clean:V:
-	$BUILD -clean

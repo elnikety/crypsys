@@ -1,9 +1,8 @@
-let modulus_bits = Parm.rogue_modulus_bits
-let security_bits = Parm.rogue_security_bits
+let error = Util.error
 module Bn = Cryptokit.Bn
 module Hashutil = Util.Hashutil
 module Numutil = Util.Numutil
-let error = Util.error
+module P = Parm
 
 type key = { biggamma: Nat.nat; rho: Nat.nat; gamma: Nat.nat }
 
@@ -24,11 +23,11 @@ let recover_r ~biggamma ~rho () : Nat.nat * Nat.nat =
 
 (** Pick a prime ρ of length ℓ_ρ. *)
 let pick_rho ?rng () =
-  Bn.random_prime ?rng security_bits
+  Bn.random_prime ?rng P.rogue_security_bits
 
 (** Pick r ∈ ℕ such that ρ ∤ r. *)
 let rec pick_r ?rng ~rho =
-  let rbits = modulus_bits - security_bits in
+  let rbits = P.rogue_modulus_bits - P.rogue_security_bits in
   let r = Bn.random_nat ?rng rbits in
   if Numutil.divides rho r
   then pick_r ?rng ~rho
@@ -41,7 +40,7 @@ let rec pick_r ?rng ~rho =
 let rec pick_biggamma ?rng ~rho =
   let r = pick_r ?rng ~rho in
   let biggamma = Bn.add Bn.one (Bn.mult r rho) in
-  if Bn.num_bits biggamma = modulus_bits
+  if Bn.num_bits biggamma = P.rogue_modulus_bits
   && Bn.is_probably_prime biggamma
   then (r,biggamma)
   else pick_biggamma ?rng ~rho
@@ -74,10 +73,10 @@ let new_key ?rng () =
 	See verification steps 2–3 in the DAA paper.
 *)
 let check_key {biggamma; rho; gamma} =
-  if Bn.num_bits biggamma != modulus_bits
+  if Bn.num_bits biggamma != P.rogue_modulus_bits
   then error "Γ out of bounds";
   
-  if Bn.num_bits rho != security_bits
+  if Bn.num_bits rho != P.rogue_security_bits
   then error "ρ out of bounds";
   
   if not(Bn.is_probably_prime biggamma)
@@ -132,7 +131,7 @@ let base ?rng ?bsn key =
 
 let tag key ~zeta ~f0 ~f1 =
   let f = Parm.join ~f0 ~f1 in
-  if Bn.num_bits f >= security_bits then
+  if Bn.num_bits f >= P.rogue_security_bits then
   invalid_arg "tag";
   Bn.mod_power zeta f key.biggamma
 

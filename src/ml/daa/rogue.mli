@@ -67,9 +67,6 @@
 		http://cacr.uwaterloo.ca/hac/
 *)
 
-val modulus_bits: int	(* ℓ_Γ *)
-val security_bits: int	(* ℓ_ρ *)
-
 type key = { biggamma: Nat.nat; rho: Nat.nat; gamma: Nat.nat }
 
 val new_key: ?rng: Cryptokit.Random.rng -> unit -> key

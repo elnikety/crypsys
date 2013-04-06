@@ -1,11 +1,6 @@
-1. util.mli util.ml
-2. parm.mli parm.ml
-3a. rogue.mli rogue.ml
-3b. provelog.mli provelog.ml
-4. group.mli group.ml
-4½ (background, signature code): clsig.ml cl.ml
-5. join.mli join.ml
-6. sign.mli sign.ml
+The size of an RSA modlus can be one bit too small. Fix Cryptokit.
+
+daa/guide
 
 ../project/links ../project/proto
 

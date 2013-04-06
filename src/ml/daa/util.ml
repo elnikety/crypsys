@@ -1,4 +1,3 @@
-let nat_of_int = Nat.nat_of_int
 module Bn = Cryptokit.Bn
 module RSA = Cryptokit.RSA
 type nat = Nat.nat
@@ -20,6 +19,12 @@ let memoize (f:unit -> 'a) : unit -> 'a =
 let unwind ~protect f x =
   let r = apply f x in
   protect x; r()
+
+let tohex (bytes:string) : string =
+  Cryptokit.transform_string (Cryptokit.Hexa.encode ()) bytes
+
+let pp_nat (fmt:Format.formatter) (n:nat) : unit =
+  Format.pp_print_string fmt (tohex (Bn.bytes_of_nat n))
 
 module Listutil = struct
 
@@ -253,7 +258,7 @@ let new_QR_n_generator ?rng m =
     else a
   in
   let a = find() in
-  Bn.mod_power a (nat_of_int 2) m.n
+  Bn.mod_power a (Nat.nat_of_int 2) m.n
 
 let new_QR_n_member' ?rng ~base m =
   let pick_exponent = Numutil.random_nat_in' ?rng Bn.one m.p'q' in

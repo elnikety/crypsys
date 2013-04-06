@@ -2,17 +2,18 @@ let error = Util.error
 module Bn = Cryptokit.Bn
 module Listutil = Util.Listutil
 module Numutil = Util.Numutil
+module P = Parm
 module Rsa = Util.Rsa
 type nat = Nat.nat
 
 type pubkey =
-  { n: Nat.nat; g': nat;
+  { n: nat; g': nat;
     g: nat; h:nat; s: nat; z: nat; r0: nat; r1: nat;
     proof: Provelog.proof }
-type key = { pub: pubkey; p'q': Nat.nat }
+type key = { pub: pubkey; p'q': nat }
 
 let new_key ?rng () =
-  let m = Rsa.new_special ?rng Parm.rsa_modulus_bits in
+  let m = Rsa.new_special ?rng P.rsa_modulus_bits in
   let (n,p,_) = Rsa.factors m in
   let p'q' = Rsa.p'q' m in
   let g' = Rsa.new_QR_n_generator ?rng m in
@@ -30,7 +31,7 @@ let new_key ?rng () =
 let pubkey key = key.pub
 
 let check_key { n; g'; g; h; s; z; r0; r1; proof } =
-  if Bn.num_bits n != Parm.rsa_modulus_bits
+  if Bn.num_bits n != P.rsa_modulus_bits
   then error "n out of bounds";
   
   (* PDS: Do we know more about the lengths of these values? *)

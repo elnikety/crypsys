@@ -6,6 +6,8 @@ val error : string -> 'a
 val memoize: (unit -> 'a) -> unit -> 'a
 val unwind: protect: ('a -> unit) -> ('a -> 'b) -> 'a -> 'b
 
+val pp_nat : Format.formatter -> nat -> unit
+
 module Listutil: sig
 
   val revgen: (unit -> 'a) -> int -> 'a list
