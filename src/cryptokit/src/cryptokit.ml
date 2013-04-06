@@ -1446,6 +1446,7 @@ let random_nat ?(rng = Random.secure_rng) ?(lowbits = 0) numbits =
     lor_digit_nat n 0 tmp 0
   end;
   (* adjust high digit of n so that it is exactly numbits long *)
+  set_digit_nat tmp 0 1;
   shift_left_nat tmp 0 1 tmp 1 ((numbits - 1) land (length_of_digit - 1));
   ignore(decr_nat tmp 0 1 0);
   land_digit_nat n (numdigits - 1) tmp 0;
@@ -1638,7 +1639,7 @@ let safe_divisible_by_small_prime =
 let sg_of_safe p =
   let q = sub p one in
   let ln = num_digits q in
-  let tmp = create_nat 1 in
+  let tmp = create_nat 2 in
   let () = shift_right_nat q 0 ln tmp 0 1 in
   wipe_nat tmp; q
 
