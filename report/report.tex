@@ -1,0 +1,54 @@
+\RequirePackage[l2tabu,orthodox]{nag}
+\documentclass[a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+
+\def\TITLE{Direct Anonymous Attestation on a Secure Coprocessor}
+
+\usepackage{hyperref}
+\hypersetup{
+	colorlinks = true,
+	urlcolor = black,
+	linkcolor = black,
+	citecolor = black,
+	pdftitle = {\TITLE},
+	pdfauthor = {Eslam Elnikety, Edit Kapcari, Vineet Rajani, and David Swasey},
+	pdfsubject = {\TITLE (Experience Report)},
+	pdfkeywords = {Zero-Knowledge Proofs, Authentication, Secure coprocessors},
+	pdfpagemode = UseNone
+}
+\urlstyle{same}
+
+% The following can go away once we've written the report.
+\usepackage[svgnames]{xcolor}
+\definecolor{shadecolor}{named}{LightGrey}
+\usepackage{framed}
+\newenvironment{comment}%
+  {\begin{snugshade}\begin{quote}}
+  {\hfill\end{quote}\end{snugshade}}
+
+\title{\TITLE \\
+	{\small\textsc{Experience Report}}%
+}
+\author{Eslam Elnikety \and Edit Kapcari \and Vineet Rajani \and David Swasey}
+\date{April 7, 2013}
+
+% Abstract: Leave for last
+
+\begin{document}\maketitle
+
+\input{introduction.tex}
+\input{background.tex}
+\input{protocol.tex}
+\input{implementation.tex}
+% Conclusion: Probably out.
+\nocite{*}	% PDS: Temporary hack: Include all references.
+\bibliographystyle{plain}
+\bibliography{refs}	% i.e., refs.bib
+\appendix
+\input{contributions.tex}
+\input{literature.tex}
+
+\end{document}
