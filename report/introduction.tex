@@ -87,7 +87,7 @@ The contributions of this project to the trusted computing community are two fol
 
 (1) Provide cryptocard-specific DAA implementation -- to the best of our knowledge, there is no out-of-the-box implementation. This should enable trusted computing systems to harness the numerous hardware features provided by cryptocards to deliver richer systems. As we discuss in Section~\ref{sec:impl}, we provide implementations in ML and C.
 
-(2) Less complex implementation;  due to the hardware limitations of the TPM, traditional DAA implementations offload expensive computations to the relatively more powerful processor of the host machine. However, results of offloaded computations have to be verified by the TPM chip since the host is not trusted. In our model, all DAA-prover-side computations are done within the cryptocard.
+(2) Less complex implementation;  due to the hardware limitations of the TPM, traditional DAA implementations offload expensive computations to the relatively more powerful processor of the host machine. However, results of offloaded computations have to be verified by the TPM chip since the host is not trusted. In our model, we eliminate the distinction between the host and the cryptocard. 
 
 \if 0
 We expect this project to challenge us.
