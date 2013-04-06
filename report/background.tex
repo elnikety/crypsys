@@ -1,11 +1,5 @@
 \section{Background}
 
-\newcommand{\QR}{\mathrm{QR}}
-\newcommand{\defeq}{\mathrel{:=}}
-\newcommand{\iseq}{\mathrel{\overset{\mathrm{?}}{=}}}
-\newcommand{\secref}[1]{Section~\ref{sec:#1}}
-\newcommand{\seclabel}[1]{\label{sec:#1}}
-
 \begin{comment}
 	\emph{PDS:}
 	DAA as a combination of building blocks.
@@ -95,11 +89,6 @@ secret key for use in DAA signatures. (When signing with a
 verifier that does not supply a basename, the cryptocard picks
 a random $\zeta \in G$.)
 
-\newcommand{\Z}{\mathbb{Z}}
-\newcommand{\N}{\mathbb{N}}
-\newcommand{\Zstar}[1]{\Z^{\star}_{#1}}
-\newcommand{\gen}[1]{\langle{#1}\rangle}
-
 \medskip
 
 DAA's rogue tagging key comprises primes $\Gamma$ and $\rho$ and a member $\gamma$
@@ -154,8 +143,6 @@ composite.\footnote{%
 
 \subsubsection{The discrete log problem}
 
-\newcommand{\ciff}{\mathrel{\phantom{\iff}}}
-
 Let the group $G$ and $g$, $h \in G$ be given.
 Suppose a prover $P$ and
 verifier $V$ agree on these and $P$ wants to convince $V$ that
@@ -166,8 +153,6 @@ verifier $V$ agree on these and $P$ wants to convince $V$ that
 without revealing the witness $\alpha$.
 
 \subsubsection{Making the verifier happy: Basic protocol}
-
-\newcommand{\sset}[1]{\left\{#1\right\}}
 
 Consider the following protocol. It has the form ``commit,
 challenge, response'' (a so-called $\Sigma$-protocol).
@@ -213,7 +198,6 @@ back doors'' to the prover's secret $\alpha$, then we might attempt to
 prove our protocol satisfies witness
 indistinguishability.
 
-\newcommand{\size}[1]{\lvert{#1}\rvert}
 We restrict our parameters as follows.
 Let $n$ be a special RSA modulus so that
 there exist primes $p$, $p'$, $q$, and $q'$ satisfying

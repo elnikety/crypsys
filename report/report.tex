@@ -32,8 +32,28 @@
   {\begin{snugshade}\begin{quote}}
   {\hfill\end{quote}\end{snugshade}}
 
+% References
+
+\newcommand{\seclabel}[1]{\label{sec:#1}}
+\newcommand{\secref}[1]{Section~\ref{sec:#1}}
+
+% Prose
+
 \newcommand{\eg}{\textit{e.g.}}
 \newcommand{\ie}{\textit{i.e.}}
+
+% Math
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\QR}{\mathrm{QR}}
+\newcommand{\Zstar}[1]{\Z^{\star}_{#1}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\ciff}{\mathrel{\phantom{\iff}}}
+\newcommand{\defeq}{\mathrel{:=}}
+\newcommand{\gen}[1]{\langle{#1}\rangle}
+\newcommand{\iseq}{\mathrel{\overset{\mathrm{?}}{=}}}
+\newcommand{\size}[1]{\lvert{#1}\rvert}
+\newcommand{\sset}[1]{\left\{#1\right\}}
 
 \title{\TITLE \\
 	{\small\textsc{Experience Report}}%
