@@ -1,5 +1,6 @@
 \section{Implementation}
 
+\if 0
 \begin{comment}
 	\emph{EE:}
 	We've two implementations.
@@ -9,3 +10,27 @@
 	
 	!!!Things are broken!!!
 \end{comment}
+\fi
+
+This section describes our implementation of the DAA protocol on the IBM 4764
+PCI-X Cryptographic Coprocessor. Our implementation strategy is to have (1) a
+full implementation, i.e., prover and verifier, in a functional programming
+language, and (2) a separate implementation for the prover in a language that
+compiles into an executable the secure cryptocard understands.
+
+The implementation in a functional programming language makes it easier to
+scrutinize the code to find any mismatch between the protocol specifications and
+the associated implementation. It is also a step closer to formalizing the
+protocol into a list of specifications that we can formally reason about its
+correctness though a theorem prover. We chose ML to be our functional
+programming language. Given the tools provided in the IBM Developers' Toolkit,
+we can compile a separate implementation of the prover in C code into a binary
+that can be deployed into the secure cryptoprocessor.
+
+The two separate codebases give us the ability to progress independently and
+have a strong measure of correctness that both implementations are correct when
+having two isolated codebases communicating with each other.
+
+Status: Most of the codebase is done, however, the implemenation is not fully
+running. There are bugs that break the verification due to mismatch of the hash
+values.
