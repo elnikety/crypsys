@@ -17,6 +17,9 @@ BigInt rval(BigInt r, BigInt v, BigInt c)
   return BIadd(r, BImul(c,v));
 }
 
+extern void base(char* bsn, Key *key, BigInt *zeta);
+extern void tag(Key *key, BigInt *zeta, BigInt *f0, BigInt *f1, BitInt *res);
+
 void
 sign(PublicKey *group, Key *rogue, Secret *secret, Cert *cert,
 		Message *msg, SigNat *signat)
@@ -25,10 +28,52 @@ sign(PublicKey *group, Key *rogue, Secret *secret, Cert *cert,
 	  char error[MAX_CHAR_ARRAY_LENGTH],c_h[MAX_CHAR_ARRAY_LENGTH];
 	  char hash[MAX_CHAR_ARRAY_LENGTH], inner[MAX_CHAR_ARRAY_LENGTH];
 
+	  BigInt temp1, temp2, temp3, temp4, temp5, temp6, temp7;
+	  BigInt tmp, rv, tilde_T1t;
+
+	  TupleRM wr, rf0rf1;
+
+	  int bits;
+
 	  if(noOfBits(&msg->n_v) > hash_bits){
 		    strcpy(error,"n_v out of bounds");
 		    Abort(error);
 	  }
+
+	  bits = rsa_modulus_bits + distribution_bits;
+	  get_rnd(&wr->r, bits);
+	  get_rnd(&wr->m, bits);
+
+	  BIpow(&group->h, &wr->r, &group->n, &tmp);
+	  BImul(&cert->biga, &tmp, &tmp);
+	  BImod(&tmp, &group->n, &signat->bigt1);
+
+	  BIpow(&group->g, &wr->r, &temp1);
+	  BIpow(&group->h, &cert->e, &temp2);
+	  BIpow(&group->gPrime, &wr->m, &temp3);
+	  BImul(&temp1, &temp2, &temp4);
+	  BImul(&temp4, &temp3, &temp5);
+	  BImod(&temp5, &group->n, &signat->bigt2);
+
+	  base(msg->bsn, rogue, &signat->zeta);
+	  tag(rogue, &signat->zerta, &secret->f, &secret->s, &signat->bign_V);
+
+	  bits = random_bits + distribution_bits + hash_bits;
+	  get_rnd(&rv, bits);
+
+	  get_rnd(&rf0rf1->r, bits);
+	  get_rnd(&rf0rf1->m, bits);
+
+	  r0=group.r0; r1=group.r1; s=group.s;
+	  rf0 = rf0rf1.r; rf1 = rf0rf1.m;
+
+	  BIpow(&group->r0, &rf0rf1->r, &group->n, &temp1);
+	  BIpow(&group->r1, &rf0rf1->m, &group->n, &temp2);
+	  BIpow(&group->s, &rv, &group->n, &temp3);
+	  BImul(&temp1, &temp2, &temp4);
+	  BImul(&temp4, &temp3, &temp5);
+	  BImod(&temp5, &group->n, &tilde_T1t);
+
 
 }
 
@@ -52,10 +97,6 @@ SigNat sign(PublicKey group, RogueKey rogue, Secret secret, Cert cert, Message m
 
   strcpy(bsn,msg.bsn); strcpy(m,msg.m);
   b = msg.b; n_v = msg.n_v;
-  if(noOfBits(n_v) > hash_bits){
-    strcpy(error,"n_v out of bounds");
-    Abort(error);
-  }
 
   n=group.n; gPrime=group.gPrime; g=group.g; h=group.h;
   r0=group.r0; r1=group.r1; s=group.s;
@@ -67,12 +108,6 @@ SigNat sign(PublicKey group, RogueKey rogue, Secret secret, Cert cert, Message m
 
   w = wr.r; r = wr.m;
 
-  bigt1 = BImodMult(biga,BImodPower(h,wr.r,n),n);
-  
-  temp1 = BIpower(g,w); temp2 = BIpower(h,e); temp3 = BIpower(gPrime,r);
-  temp4 = BImul(temp1, temp2); temp5 = BImul(temp4, temp3);
-  bigt2 = BImod(temp5,n);
-  
   zeta = base(bsn,rogue);
   bign_V = tag(rogue,zeta,f0,f1);
 
