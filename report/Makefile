@@ -7,7 +7,6 @@ PARTS=\
 	implementation.tex\
 	refs.bib\
 	contributions.tex\
-	literature.tex\
 
 .PHONY: all clean
 
