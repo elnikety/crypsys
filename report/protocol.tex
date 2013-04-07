@@ -1,4 +1,4 @@
-\section{Protocol overview}
+\section{Protocol overview}\seclabel{daa}
 
 In our setting, the DAA protocol involves three participants:
 \begin{description}
@@ -46,8 +46,9 @@ to its host.
 As cryptocards are more powerful than TPMs, we avoid the distinction.
 In our implementation, a cryptocard performs all TPM and
 host calculations.\footnote{%
-	We did not attempt to simplify the protocol
-	by avoiding computations relevant to the Host/TPM split.}
+	We do not avoid computations relevant to the Host-TPM divide.}
+
+\bigskip
 
 Before describing the underlying cryptographic operations,
 we offer a bird's-eye view of the join and signing protocols.

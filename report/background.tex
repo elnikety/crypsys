@@ -1,4 +1,4 @@
-\section{Crypographic building blocks}
+\section{Crypographic building blocks}\seclabel{background}
 
 We offer an informal account of the building blocks used by DAA.
 DAA comprises a group signature scheme~(\secref{cl}) paired with a rogue tagging scheme~(\secref{rogue}), using \emph{efficient} zero-knowledge proofs to achieve anonymity~(\secref{zkp}).
@@ -14,7 +14,7 @@ proof protocols.
 The Camenisch and Lysyanskaya~(CL) signature scheme
 supports group creation,
 the ability for a group's creator to add a member to the group,
-and the ability for a group member to prove membership to a third party.
+and the ability for a group member to prove membership to a third party~\cite{cl}.
 The group of interest is the set of cryptocards that have proved
 their identity to a DAA issuer.
 
@@ -107,7 +107,7 @@ We offer no “check if this tag is a rogue” heuristic. In
 theory, issuers and verifiers use tags to track legitimate
 users (pseudonymously) and to identify rogues. We offer tags,
 but no heuristics. Each issuer/verifier must settle on a
-policy. (The DAA paper suggests that when talking to a
+policy. (Brickell et al.\ suggest that when talking to a
 platform with tag $N$, a verifier checks $N$ and any earlier $N'$
 used by that platform against a blacklist. If found, the
 verifier should abort the protocol.)
@@ -196,7 +196,7 @@ prove our protocol satisfies witness
 indistinguishability.
 
 We restrict our parameters as follows.
-Let $n$ be a special RSA modulus so that
+Let $n$ be a special RSA modulus; that is,
 there exist primes $p$, $p'$, $q$, and $q'$ satisfying
 $n = pq$, $p = 2p' + 1$, $q = 2q' + 1$, and $q \not= p$.
 Let $G$ be the multiplicative group mod $n$
@@ -251,10 +251,10 @@ but only to establish that long-lived parameters (\eg, the CL group
 parameters) are well-formed.
 Each protocol participant checks such parameters once, amortizing that cost.
 
-CL and DAA use many other zero-knowledge protocols to prove knowledge
-of relations among discrete logarithms (among other relations).
+CL and DAA use several other zero-knowledge protocols to prove knowledge
+of relations among discrete logarithms (amongst other relations).
 These zero-knowledge protocols
-are much more efficient, presupposing that parameters have been
+are much more efficient: Presupposing that parameters have been
 checked, they ``get away with'' one commitment.
 An account of these protocols is beyond the scope of this report;
 please refer to~\cite[\S\/5]{cl} and~\cite[\S\/3.2]{daa} for references.

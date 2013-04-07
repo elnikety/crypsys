@@ -24,9 +24,9 @@
 \end{comment}
 \fi
 
-We implement Direct Anonymous Attestation (DAA) on top of
+We describe our experience implementing Direct Anonymous Attestation~(DAA) on top of
 a member of the IBM~4758 family of
-cryptographic coprocessors.
+cryptographic coprocessors~\cite{daa,smith:design}.
 
 Attestation is a core concept in so-called trusted computing.
 It enables trust decisions based on the identity of a machine
@@ -63,10 +63,10 @@ In our scenario, for example, if remote attestation reveals a TPM's identity, th
 online companies might misuse that information to track a user and profile
 her preferences.
 
-The DAA authenticates a TPM
+DAA authenticates a TPM
 while offering anonymity guarantees.
 DAA performs the necessary authentication \emph{without} revealing the TPM's identity,
-sending $S$ a zero-knowledge proof instead. \dchk{Similarly, DAA can be used to authenticate a machine that uses a configuration out of a set of trusted configurations without revealing the signature of that configuration. This is useful when the configuration conveys too much information and, thus, could be used as an identifier.}
+sending $S$ a zero-knowledge proof instead.
 
 In this project, we adapt DAA to work with an IBM secure coprocessor
 rather than a TPM.
@@ -80,37 +80,24 @@ More important, the IBM coprocessors have been verified to FIPS~140-1 Level~4.
 Among other things, this means they offer laboratory-tested physical security against
 environmental attacks.
 Keys and other sensitive data stored in an IBM coprocessor's battery-backed RAM
-are automatically `zeroized' when such attacks are detected.
+are automatically `zeroized' when such attacks are detected~\cite{smith:fips}.
 To our knowledge, no TPM has been so verified.
 
-The contributions of this project to the trusted computing community are two fold:
+Our contributions include
+\begin{itemize}
+\item An implementation of DAA for the IBM~4758 family of cryptographic coprocessors.
+To the best of our knowledge, no out-of-the-box implementations exist.
+This should enable trusted computing systems to harness the numerous hardware and software features provided by cryptocards.
+As we discuss in Section~\ref{sec:impl}, we provide implementations in ML and C.
 
-(1) Provide cryptocard-specific DAA implementation -- to the best of our knowledge, there is no out-of-the-box implementation. This should enable trusted computing systems to harness the numerous hardware features provided by cryptocards to deliver richer systems. As we discuss in Section~\ref{sec:impl}, we provide implementations in ML and C.
+\item Simplification.
+Due to the hardware limitations of the TPM, traditional DAA implementations offload expensive computations to the relatively more powerful processor of the host machine.
+However, the results of offloaded computations have to be verified by the TPM since the host is not trusted.
+In our model, we eliminate the distinction between the host and the cryptocard. 
+\end{itemize}
 
-(2) Less complex implementation;  due to the hardware limitations of the TPM, traditional DAA implementations offload expensive computations to the relatively more powerful processor of the host machine. However, results of offloaded computations have to be verified by the TPM chip since the host is not trusted. In our model, we eliminate the distinction between the host and the cryptocard. 
-
-\if 0
-We expect this project to challenge us.
-We will describe our adapted DAA protocol and implement it.
-Time permitting, we will prove its security properties.
-Our implementation may or may not involve instrumenting (some subset of)
-a BIOS, a bootloader, and an OS to take appropriate \emph{code measurements} for attestation;
-if not, we will provide a well-documented API so that others,
-more familiar with a particular system, can do so.
-
-\begin{comment}
-	\emph{PDS and EE:}
-	These are the contributions we hoped for a few days ago.
-
-	They should be the points covered by our draft---not the story though.
-	\begin{itemize}
-	\item What can a cryptocard, compared to TPM, add to the picture?
-	\item Why DAA is useful?
-	\item There is no out-of-the-box DAA implementation for cryptocards.
-	\item Cryptocard-specific DAA eases the implementation since we don't have
-to offload any computations to the host.
-	\item We have a *working* implementation in ML
-	\item We have a *working* implementation in C for the cryptocard
-	\end{itemize}
-\end{comment}
-\fi
+In~\secref{daa}, we describe DAA.
+In~\secref{background}, we elaborate by describing the
+cryptographic building blocks used in DAA.
+In~\secref{impl}, we describe our implementation.
+A brief appendix discusses our individual contributions.
