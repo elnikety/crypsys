@@ -25,7 +25,7 @@
 \fi
 
 We implemented Direct Anonymous Attestation~(DAA) on top of
-a member of the IBM~4758 family of
+a member of the IBM~4765 family of
 cryptographic coprocessors~\cite{daa,smith:design}.
 
 Attestation is a core concept in so-called trusted computing.
@@ -83,9 +83,9 @@ Keys and other sensitive data stored in an IBM coprocessor's battery-backed RAM
 are automatically `zeroized' when such attacks are detected~\cite{smith:fips}.
 To our knowledge, no TPM has been so verified.
 
-Our contributions include
+Our contributions include:
 \begin{itemize}
-\item An implementation of DAA for the IBM~4758 family of cryptographic coprocessors.
+\item An implementation of DAA for the IBM~4765 family of cryptographic coprocessors.
 To the best of our knowledge, no out-of-the-box implementations exist.
 This should enable trusted computing systems to harness the numerous hardware and software features provided by cryptocards.
 As we discuss in Section~\ref{sec:impl}, we provide implementations in ML and C.
