@@ -24,7 +24,7 @@
 \end{comment}
 \fi
 
-We describe our experience implementing Direct Anonymous Attestation~(DAA) on top of
+We implemented Direct Anonymous Attestation~(DAA) on top of
 a member of the IBM~4758 family of
 cryptographic coprocessors~\cite{daa,smith:design}.
 
@@ -50,7 +50,7 @@ software running alongside $A$ to ensure that only ``trustworthy'' programs
 are running.
 
 As this scenario suggests, we are concerned with \emph{remote} attestation.
-Remote attestation involves authenticating a trusted component (e.g., a trusted platform module~(TPM))
+Remote attestation involves authenticating a trusted component (e.g., a trusted platform module---TPM)
 on a remote machine prior to running an attestation protocol
 with it.
 Authentication matters: $S$ would like to know that when it performs a remote attestation,
